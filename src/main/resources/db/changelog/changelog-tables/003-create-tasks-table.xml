@@ -12,7 +12,7 @@
             <column autoIncrement="true" name="id" type="bigint">
                 <constraints nullable="false" primaryKey="true" primaryKeyName="tasks_pkey"/>
             </column>
-            <column name="text" type="varchar(10000)">
+            <column name="text" type="varchar(20000)">
                 <constraints nullable="false"/>
             </column>
             <column defaultValueNumeric="1" name="status_id" type="bigint">

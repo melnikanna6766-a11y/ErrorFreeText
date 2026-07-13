@@ -14,12 +14,14 @@ public class TaskService {
     private TaskRepository taskRepository;
     private StatusRepository statusRepository;
     private LanguageRepository languageRepository;
+    private TaskScheduler taskScheduler;
 
     public long saveTask(String text, long language_id) {
         Task currentTask = new Task();
         currentTask.setText(text);
         currentTask.setLanguage(languageRepository.findById(language_id).orElseThrow(NoSuchIdException::new));
-        return taskRepository.save(currentTask).getId();
+        Task task = taskRepository.save(currentTask);
+        return task.getId();
     }
 
 
