@@ -15,12 +15,12 @@
 
         <insert tableName="task_status">
             <column name="id" valueNumeric="2"/>
-            <column name="status" value="completed"/>
+            <column name="status" value="inProgress"/>
         </insert>
 
         <insert tableName="task_status">
             <column name="id" valueNumeric="3"/>
-            <column name="status" value="inProgress"/>
+            <column name="status" value="completed"/>
         </insert>
 
         <insert tableName="task_status">
