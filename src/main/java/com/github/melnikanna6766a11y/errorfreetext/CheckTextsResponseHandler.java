@@ -1,0 +1,30 @@
+package com.github.melnikanna6766a11y.errorfreetext;
+
+import com.github.melnikanna6766a11y.errorfreetext.dto.CheckTextsResponse;
+import com.github.melnikanna6766a11y.errorfreetext.entity.Task;
+import tools.jackson.databind.ObjectMapper;
+
+import java.util.ArrayList;
+import java.util.List;
+
+public class CheckTextsResponseHandler {
+
+    public List<String> createCheckTextResponse(Task task) {
+        int index = 0;
+        String[] text = task.getText().split(" ");
+        ArrayHandler arrayHandler = new ArrayHandler();
+        int limit = arrayHandler.calculateLimit(text);
+        List<String> jsons = new ArrayList<>();
+        while (index < text.length-1) {
+            String[] textResponse = arrayHandler.createResponseArray(text, index, limit);
+            index += limit;
+            CheckTextsResponse checkTextsResponse = new CheckTextsResponse(
+                    textResponse,
+                    task.getLanguage().getLanguage(),
+                    new OptionsHandler().checkOptions(text));
+            ObjectMapper objectMapper = new ObjectMapper();
+            jsons.add(objectMapper.writeValueAsString(checkTextsResponse));
+        }
+        return jsons;
+    }
+}

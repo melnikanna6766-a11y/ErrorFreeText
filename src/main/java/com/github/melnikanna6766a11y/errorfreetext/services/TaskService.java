@@ -14,7 +14,6 @@ public class TaskService {
     private TaskRepository taskRepository;
     private StatusRepository statusRepository;
     private LanguageRepository languageRepository;
-    private TaskScheduler taskScheduler;
 
     public long saveTask(String text, long language_id) {
         Task currentTask = new Task();

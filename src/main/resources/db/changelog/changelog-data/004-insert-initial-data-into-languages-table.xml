@@ -10,12 +10,12 @@
     <changeSet author="anna" id="insert-initial-data-into-languages-table">
         <insert tableName="languages">
             <column name="id" valueNumeric="1"/>
-            <column name="language" value="EN"/>
+            <column name="language" value="en"/>
         </insert>
 
         <insert tableName="languages">
             <column name="id" valueNumeric="2"/>
-            <column name="language" value="RU"/>
+            <column name="language" value="ru"/>
         </insert>
     </changeSet>
 
