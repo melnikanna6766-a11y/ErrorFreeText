@@ -11,9 +11,8 @@ public class ArrayHandler {
             return Arrays.stream(text).skip(from).limit(text.length-1).toArray(String[]::new);
         } else if (from == text.length - 1){
             return text;
-        } else {
-            return null;
         }
+        return null;
     }
 
     public int calculateLimit(String[] text) {

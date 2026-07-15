@@ -9,17 +9,19 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.UUID;
+
 @RestController
 @AllArgsConstructor
 public class TaskController {
     private TaskService taskService;
 
-    @PostMapping("/task")
-    public long saveTask(@RequestBody String text, @RequestBody long language_id) {
+    @PostMapping("/tasks")
+    public UUID saveTask(@RequestBody String text, @RequestBody long language_id) {
         return taskService.saveTask(text, language_id);
     }
 
-//    @GetMapping("/task/{id}")
+//    @GetMapping("/tasks/{id}")
 //    public TaskResponse getTask(@PathVariable long id) {
 //
 //    }

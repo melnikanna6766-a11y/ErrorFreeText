@@ -8,6 +8,8 @@ import com.github.melnikanna6766a11y.errorfreetext.repositories.TaskRepository;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.UUID;
+
 @Service
 @AllArgsConstructor
 public class TaskService {
@@ -15,12 +17,12 @@ public class TaskService {
     private StatusRepository statusRepository;
     private LanguageRepository languageRepository;
 
-    public long saveTask(String text, long language_id) {
+    public UUID saveTask(String text, long language_id) {
         Task currentTask = new Task();
-        currentTask.setText(text);
+        currentTask.setId(UUID.randomUUID());
+        currentTask.setInputText(text);
         currentTask.setLanguage(languageRepository.findById(language_id).orElseThrow(NoSuchIdException::new));
-        Task task = taskRepository.save(currentTask);
-        return task.getId();
+        return taskRepository.save(currentTask).getId();
     }
 
 

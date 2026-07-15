@@ -28,7 +28,6 @@ dependencies {
     implementation 'org.projectlombok:lombok:1.18.46'
     annotationProcessor 'org.projectlombok:lombok:1.18.46'
     testImplementation 'org.mockito:mockito-core:5.23.0'
-    testImplementation 'junit:junit:4.13.2'
 }
 
 tasks.named('test') {

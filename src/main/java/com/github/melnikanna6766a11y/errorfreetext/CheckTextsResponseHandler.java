@@ -11,18 +11,18 @@ public class CheckTextsResponseHandler {
 
     public List<String> createCheckTextResponse(Task task) {
         int index = 0;
-        String[] text = task.getText().split(" ");
+        String[] text = task.getInputText().split(" ");
         ArrayHandler arrayHandler = new ArrayHandler();
         int limit = arrayHandler.calculateLimit(text);
         List<String> jsons = new ArrayList<>();
-        while (index < text.length-1) {
+        ObjectMapper objectMapper = new ObjectMapper();
+        while (index <= text.length-1) {
             String[] textResponse = arrayHandler.createResponseArray(text, index, limit);
             index += limit;
             CheckTextsResponse checkTextsResponse = new CheckTextsResponse(
                     textResponse,
                     task.getLanguage().getLanguage(),
                     new OptionsHandler().checkOptions(text));
-            ObjectMapper objectMapper = new ObjectMapper();
             jsons.add(objectMapper.writeValueAsString(checkTextsResponse));
         }
         return jsons;
