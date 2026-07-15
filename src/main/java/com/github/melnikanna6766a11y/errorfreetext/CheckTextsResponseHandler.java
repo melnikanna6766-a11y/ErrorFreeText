@@ -9,13 +9,12 @@ import java.util.List;
 
 public class CheckTextsResponseHandler {
 
-    public List<String> createCheckTextResponse(Task task) {
+    public List<CheckTextsResponse> createCheckTextResponse(Task task) {
         int index = 0;
         String[] text = task.getInputText().split(" ");
         ArrayHandler arrayHandler = new ArrayHandler();
         int limit = arrayHandler.calculateLimit(text);
-        List<String> jsons = new ArrayList<>();
-        ObjectMapper objectMapper = new ObjectMapper();
+        List<CheckTextsResponse> responses = new ArrayList<>();
         while (index <= text.length-1) {
             String[] textResponse = arrayHandler.createResponseArray(text, index, limit);
             index += limit;
@@ -23,8 +22,8 @@ public class CheckTextsResponseHandler {
                     textResponse,
                     task.getLanguage().getLanguage(),
                     new OptionsHandler().checkOptions(text));
-            jsons.add(objectMapper.writeValueAsString(checkTextsResponse));
+            responses.add(checkTextsResponse);
         }
-        return jsons;
+        return responses;
     }
 }

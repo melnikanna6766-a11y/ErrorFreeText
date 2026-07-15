@@ -1,5 +1,7 @@
 package com.github.melnikanna6766a11y.errorfreetext.dto;
 
+import java.util.List;
+
 public record CorrectedTextResponse(
         int code,
         int pos,
@@ -7,5 +9,5 @@ public record CorrectedTextResponse(
         int col,
         int len,
         String word,
-        String s) {
+        List<String> s) {
 }

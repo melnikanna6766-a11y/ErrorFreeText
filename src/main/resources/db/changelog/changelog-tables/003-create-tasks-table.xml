@@ -9,7 +9,7 @@
 
     <changeSet author="anna" id="create-tasks-table">
         <createTable tableName="tasks">
-            <column autoIncrement="true" name="id" type="uuid">
+            <column name="id" type="uuid">
                 <constraints nullable="false" primaryKey="true" primaryKeyName="tasks_pkey"/>
             </column>
             <column name="input_text" type="text">

@@ -2,6 +2,7 @@ package com.github.melnikanna6766a11y.errorfreetext.services;
 
 import com.github.melnikanna6766a11y.errorfreetext.CheckTextsResponseHandler;
 import com.github.melnikanna6766a11y.errorfreetext.RequestSender;
+import com.github.melnikanna6766a11y.errorfreetext.dto.CheckTextsResponse;
 import com.github.melnikanna6766a11y.errorfreetext.dto.CorrectedTextResponse;
 import com.github.melnikanna6766a11y.errorfreetext.entity.Task;
 import com.github.melnikanna6766a11y.errorfreetext.exceptions.NoSuchIdException;
@@ -20,7 +21,7 @@ public class TaskScheduler {
     private TaskRepository taskRepository;
     private StatusRepository statusRepository;
 
-    @Scheduled(fixedRate = 3600000)
+    @Scheduled(fixedRate = 60000)
     @Async
     public void handleTask() {
         List<Task> tasks = taskRepository.findAllTasksWhereCreated();
@@ -28,12 +29,14 @@ public class TaskScheduler {
             RequestSender requestSender = new RequestSender();
             task.setStatus(statusRepository.findById(2L).orElseThrow(NoSuchIdException::new));
             taskRepository.save(task);
-            List<String> jsons = new CheckTextsResponseHandler().createCheckTextResponse(task);
+            List<CheckTextsResponse> responses = new CheckTextsResponseHandler().createCheckTextResponse(task);
             List<CorrectedTextResponse> correctedTextResponses = new ArrayList<>();
-            for (String json : jsons) {
-                CorrectedTextResponse correctedTextResponse;
-                if ((correctedTextResponse = requestSender.sendRequest(json)) != null) {
-                    correctedTextResponses.add(correctedTextResponse);
+            for (CheckTextsResponse response : responses) {
+                List<List<CorrectedTextResponse>> correctedTextResponse;
+                if ((correctedTextResponse = requestSender.sendRequest(response)) != null) {
+                    for (List<CorrectedTextResponse> correctedTextResponseList: correctedTextResponse) {
+                        correctedTextResponses.addAll(correctedTextResponseList);
+                    }
                 } else {
                     task.setStatus(statusRepository.findById(4L).orElseThrow(NoSuchIdException::new));
                     taskRepository.save(task);

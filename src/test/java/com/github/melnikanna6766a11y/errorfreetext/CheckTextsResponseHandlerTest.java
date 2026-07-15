@@ -1,5 +1,6 @@
 package com.github.melnikanna6766a11y.errorfreetext;
 
+import com.github.melnikanna6766a11y.errorfreetext.dto.CheckTextsResponse;
 import com.github.melnikanna6766a11y.errorfreetext.entity.Language;
 import com.github.melnikanna6766a11y.errorfreetext.entity.Task;
 import org.junit.jupiter.api.Test;
@@ -18,7 +19,7 @@ public class CheckTextsResponseHandlerTest {
         Language language = Mockito.mock(Language.class);
         Mockito.when(language.getLanguage()).thenReturn("en");
         Mockito.when(task.getLanguage()).thenReturn(language);
-        List<String> json = new CheckTextsResponseHandler().createCheckTextResponse(task);
+        List<CheckTextsResponse> json = new CheckTextsResponseHandler().createCheckTextResponse(task);
         String expected = "{\"text\":[\"meow\"],\"lang\":\"en\",\"option\":0}";
         assertEquals(expected, json.getFirst());
     }
@@ -29,7 +30,7 @@ public class CheckTextsResponseHandlerTest {
         Language language = Mockito.mock(Language.class);
         Mockito.when(language.getLanguage()).thenReturn("en");
         Mockito.when(task.getLanguage()).thenReturn(language);
-        List<String> json = new CheckTextsResponseHandler().createCheckTextResponse(task);
+        List<CheckTextsResponse> json = new CheckTextsResponseHandler().createCheckTextResponse(task);
         String expected = "{\"text\":[\"yandex\"],\"lang\":\"en\",\"option\":6}";
         assertEquals(expected, json.getFirst());
     }

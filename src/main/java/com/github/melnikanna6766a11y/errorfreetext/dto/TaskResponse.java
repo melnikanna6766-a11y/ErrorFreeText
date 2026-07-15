@@ -1,4 +1,6 @@
 package com.github.melnikanna6766a11y.errorfreetext.dto;
 
-public record TaskResponse(String text, String status) {
+import java.util.List;
+
+public record TaskResponse(List<CorrectedTextResponse> responses, String status) {
 }

@@ -6,10 +6,11 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
 import java.util.List;
+import java.util.UUID;
 
-public interface TaskRepository extends JpaRepository<Task, Long> {
+public interface TaskRepository extends JpaRepository<Task, UUID> {
 
     @EntityGraph(value = "task-entity-graph")
-    @Query("select t from tasks t join t.status where t.status.id = 1")
+    @Query("select t from Task t join t.status s where s.id = 1")
     public List<Task> findAllTasksWhereCreated ();
 }
