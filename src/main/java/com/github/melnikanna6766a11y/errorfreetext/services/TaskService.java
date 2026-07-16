@@ -1,5 +1,6 @@
 package com.github.melnikanna6766a11y.errorfreetext.services;
 
+import com.github.melnikanna6766a11y.errorfreetext.dto.TaskRequest;
 import com.github.melnikanna6766a11y.errorfreetext.dto.TaskResponse;
 import com.github.melnikanna6766a11y.errorfreetext.entity.Task;
 import com.github.melnikanna6766a11y.errorfreetext.exceptions.NoSuchIdException;
@@ -20,16 +21,16 @@ public class TaskService {
     private LanguageRepository languageRepository;
 
     @Transactional
-    public UUID saveTask(String text, long language_id) {
+    public UUID saveTask(TaskRequest task) {
         Task currentTask = new Task();
-        currentTask.setInputText(text);
+        currentTask.setInputText(task.text());
         currentTask.setStatus(statusRepository.findById(1L).orElseThrow(NoSuchIdException::new));
-        currentTask.setLanguage(languageRepository.findById(language_id).orElseThrow(NoSuchIdException::new));
+        currentTask.setLanguage(languageRepository.findByLanguage(task.lang()).orElseThrow(NoSuchIdException::new));
         return taskRepository.save(currentTask).getId();
     }
 
     public TaskResponse findTaskById(UUID id) {
-        Task task = taskRepository.findById(id).orElseThrow();
+        Task task = taskRepository.findById(id).orElseThrow(NoSuchIdException::new);
         return new TaskResponse(task.getResponse(), task.getStatus().getStatus());
     }
 }

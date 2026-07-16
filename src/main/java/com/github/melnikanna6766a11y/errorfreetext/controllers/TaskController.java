@@ -1,7 +1,9 @@
 package com.github.melnikanna6766a11y.errorfreetext.controllers;
 
+import com.github.melnikanna6766a11y.errorfreetext.dto.TaskRequest;
 import com.github.melnikanna6766a11y.errorfreetext.dto.TaskResponse;
 import com.github.melnikanna6766a11y.errorfreetext.services.TaskService;
+import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -18,8 +20,8 @@ public class TaskController {
     private TaskService taskService;
 
     @PostMapping("/tasks")
-    public UUID saveTask(@RequestBody String text, @RequestParam long language_id) {
-        return taskService.saveTask(text, language_id);
+    public UUID saveTask(@Valid @RequestBody TaskRequest task) {
+        return taskService.saveTask(task);
     }
 
     @GetMapping("/tasks/{id}")

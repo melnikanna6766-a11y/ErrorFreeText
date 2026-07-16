@@ -21,7 +21,7 @@ public class RequestSender {
         params.add("lang", checkTextsResponse.lang());
         params.add("options", Integer.toString(checkTextsResponse.option()));
         return restClient.post()
-                .header("Content-Type", "application/x-www-form-urlencoded")
+                .contentType(MediaType.APPLICATION_FORM_URLENCODED)
                 .accept(MediaType.APPLICATION_JSON)
                 .body(params)
                 .retrieve()

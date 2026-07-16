@@ -13,7 +13,7 @@ public class RequestSenderTest {
     @Test
     public void sendRequest() {
         RequestSender requestSender = new RequestSender();
-        CheckTextsResponse checkTextsResponse = new CheckTextsResponse(new String[]{"карова"}, "ru", 0);
+        CheckTextsResponse checkTextsResponse = new CheckTextsResponse(new String[]{"карова", "мло", "мяумяу"}, "ru", 0);
         List<List<CorrectedTextResponse>> correctedTextResponse = requestSender.sendRequest(checkTextsResponse);
         assertEquals("карова" ,correctedTextResponse.getFirst().getFirst().word());
     }
