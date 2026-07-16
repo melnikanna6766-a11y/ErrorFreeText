@@ -10,7 +10,9 @@ import org.springframework.web.client.RestClient;
 import tools.jackson.databind.ObjectMapper;
 
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class RequestSender {
 
@@ -21,7 +23,6 @@ public class RequestSender {
         params.add("lang", checkTextsResponse.lang());
         params.add("options", Integer.toString(checkTextsResponse.option()));
         return restClient.post()
-                .contentType(MediaType.APPLICATION_FORM_URLENCODED)
                 .accept(MediaType.APPLICATION_JSON)
                 .body(params)
                 .retrieve()
