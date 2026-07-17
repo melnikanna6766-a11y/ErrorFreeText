@@ -3,17 +3,13 @@ package com.github.melnikanna6766a11y.errorfreetext;
 import com.github.melnikanna6766a11y.errorfreetext.dto.CheckTextsResponse;
 import com.github.melnikanna6766a11y.errorfreetext.dto.CorrectedTextResponse;
 import org.springframework.core.ParameterizedTypeReference;
-import org.springframework.http.HttpStatusCode;
 import org.springframework.http.MediaType;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestClient;
-import tools.jackson.databind.ObjectMapper;
 
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 public class RequestSender {
 

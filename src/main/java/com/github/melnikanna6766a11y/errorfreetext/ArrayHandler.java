@@ -5,21 +5,20 @@ import java.util.Arrays;
 public class ArrayHandler {
 
     public String[] createResponseArray(String[] text, int from, int limit) {
-        if ((from + (limit-from)) < text.length) {
-            return Arrays.stream(text).skip(from).limit(limit).toArray(String[]::new);
-        } else if (from < text.length - 1){
-            return Arrays.stream(text).skip(from).limit(text.length-1).toArray(String[]::new);
-        } else if (from == text.length - 1){
-            return text;
+        if (text == null || from < 0 || limit < 0) {
+            return null;
         }
-        return null;
+        int lim = Math.min(from+limit, text.length);
+        return Arrays.copyOfRange(text, from, lim);
     }
 
     public int calculateLimit(String[] text) {
+        int charCount = 0;
         int limit = 0;
         for (String word: text) {
-            if (limit + word.length() < 10000) {
-                limit += word.length();
+            if (charCount + word.length() <= 10000) {
+                charCount += word.length();
+                limit += 1;
             } else {
                 return limit;
             }

@@ -1,11 +1,9 @@
 package com.github.melnikanna6766a11y.errorfreetext.services;
 
-import com.github.melnikanna6766a11y.errorfreetext.CheckTextsResponseHandler;
-import com.github.melnikanna6766a11y.errorfreetext.RequestSender;
-import com.github.melnikanna6766a11y.errorfreetext.dto.CheckTextsResponse;
-import com.github.melnikanna6766a11y.errorfreetext.dto.CorrectedTextResponse;
+import com.github.melnikanna6766a11y.errorfreetext.ResponseHandler;
 import com.github.melnikanna6766a11y.errorfreetext.entity.Status;
 import com.github.melnikanna6766a11y.errorfreetext.entity.Task;
+import com.github.melnikanna6766a11y.errorfreetext.exceptions.CounterOverflowException;
 import com.github.melnikanna6766a11y.errorfreetext.exceptions.NoSuchIdException;
 import com.github.melnikanna6766a11y.errorfreetext.repositories.StatusRepository;
 import com.github.melnikanna6766a11y.errorfreetext.repositories.TaskRepository;
@@ -14,7 +12,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -36,40 +33,28 @@ public class TaskScheduler {
     @Scheduled(fixedDelay = 60000)
     public void handleTask() {
         List<Task> tasks = taskRepository.findAllCreatedTasks();
-        int countOfToDayChars = taskRepository.findSumSentChars(LocalDate.now());
-        int countOfToDayExecutions = taskRepository.findSumSentExecutions(LocalDate.now());
         for (Task task: tasks) {
-            if (countOfToDayChars + task.getNumberOfCharacters() < CHARS_LIMIT || countOfToDayExecutions + task.getNumberOfExecutions() < EXECUTION_LIMIT) {
-                task.setStatus(inProgress);
-                taskRepository.save(task);
-                boolean isCompleted = taskProcessing(task);
-                if (isCompleted) {
-                    task.setCompletionDate(LocalDate.now());
-                    task.setStatus(completed);
-                } else {
-                    task.setStatus(error);
-                }
-                taskRepository.save(task);
-            }
+            taskProcessing(task);
         }
     }
 
     @Transactional
-    public boolean taskProcessing(Task task) {
-        RequestSender requestSender = new RequestSender();
-        List<CheckTextsResponse> responses = new CheckTextsResponseHandler().createCheckTextResponse(task);
-        List<CorrectedTextResponse> correctedTextResponses = new ArrayList<>();
-        for (CheckTextsResponse response : responses) {
-            List<List<CorrectedTextResponse>> correctedTextResponse;
-            if ((correctedTextResponse = requestSender.sendRequest(response)) != null) {
-                for (List<CorrectedTextResponse> correctedTextResponseList: correctedTextResponse) {
-                    correctedTextResponses.addAll(correctedTextResponseList);
-                }
+    private void taskProcessing(Task task) {
+        Integer countOfToDayChars = taskRepository.findSumSentChars(LocalDate.now());
+        Integer countOfToDayExecutions = taskRepository.findSumSentExecutions(LocalDate.now());
+        if (countOfToDayChars + task.getNumberOfCharacters() < CHARS_LIMIT || countOfToDayExecutions + task.getNumberOfExecutions() < EXECUTION_LIMIT) {
+            task.setStatus(inProgress);
+            taskRepository.save(task);
+            boolean isCompleted = new ResponseHandler().createCorrectedTextResponse(task);
+            if (isCompleted) {
+                task.setCompletionDate(LocalDate.now());
+                task.setStatus(completed);
             } else {
-                return false;
+                task.setStatus(error);
             }
+            taskRepository.save(task);
+        } else {
+            throw new CounterOverflowException("The number of requests per day or the number of characters has exceeded the limit");
         }
-        task.setResponse(correctedTextResponses);
-        return true;
     }
 }

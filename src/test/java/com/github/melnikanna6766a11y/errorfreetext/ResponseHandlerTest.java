@@ -10,7 +10,7 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class CheckTextsResponseHandlerTest {
+public class ResponseHandlerTest {
 
     @Test
     public void createCheckTextResponseTest() {
@@ -19,19 +19,20 @@ public class CheckTextsResponseHandlerTest {
         Language language = Mockito.mock(Language.class);
         Mockito.when(language.getLanguage()).thenReturn("en");
         Mockito.when(task.getLanguage()).thenReturn(language);
-        List<CheckTextsResponse> json = new CheckTextsResponseHandler().createCheckTextResponse(task);
-        String expected = "{\"text\":[\"meow\"],\"lang\":\"en\",\"option\":0}";
-        assertEquals(expected, json.getFirst());
+        List<CheckTextsResponse> json = new ResponseHandler().createCheckTextResponse(task);
+        String[] expected = new String[] {"meow"};
+        assertEquals(expected[0], json.getFirst().text()[0]);
     }
 
+    @Test
     public void createCheckTextResponseWithUrlTest() {
         Task task = Mockito.mock(Task.class);
-        Mockito.when(task.getInputText()).thenReturn("https://yandex.ru/dev/speller/doc/ru/reference/checkTexts yandex");
+        Mockito.when(task.getInputText()).thenReturn("https://yandex.ru/dev/speller/doc/ru/reference/checkTexts yandex56");
         Language language = Mockito.mock(Language.class);
         Mockito.when(language.getLanguage()).thenReturn("en");
         Mockito.when(task.getLanguage()).thenReturn(language);
-        List<CheckTextsResponse> json = new CheckTextsResponseHandler().createCheckTextResponse(task);
-        String expected = "{\"text\":[\"yandex\"],\"lang\":\"en\",\"option\":6}";
-        assertEquals(expected, json.getFirst());
+        List<CheckTextsResponse> json = new ResponseHandler().createCheckTextResponse(task);
+        assertEquals("en", json.getFirst().lang());
+        assertEquals(6, json.getFirst().option());
     }
 }

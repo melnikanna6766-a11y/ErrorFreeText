@@ -1,6 +1,7 @@
 package com.github.melnikanna6766a11y.errorfreetext.exceptions;
 
 import com.github.melnikanna6766a11y.errorfreetext.dto.ErrorResponse;
+import org.apache.catalina.connector.ClientAbortException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindException;
@@ -45,5 +46,10 @@ public class ExceptionAdvice {
                         LocalDateTime.now(),
                         ServletUriComponentsBuilder.fromCurrentRequest().build().getPath()),
                 HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
+    @ExceptionHandler(ClientAbortException.class)
+    public void handleException(ClientAbortException exception) {
+
     }
 }

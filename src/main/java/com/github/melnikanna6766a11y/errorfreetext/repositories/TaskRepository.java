@@ -16,8 +16,8 @@ public interface TaskRepository extends JpaRepository<Task, UUID> {
     public List<Task> findAllCreatedTasks();
 
     @Query("select sum(t.numberOfCharacters) from Task t where t.completionDate = :date")
-    public int findSumSentChars(LocalDate date);
+    public Integer findSumSentChars(LocalDate date);
 
     @Query("select sum(t.numberOfExecutions) from Task t where t.completionDate = :date")
-    public int findSumSentExecutions(LocalDate date);
+    public Integer findSumSentExecutions(LocalDate date);
 }
