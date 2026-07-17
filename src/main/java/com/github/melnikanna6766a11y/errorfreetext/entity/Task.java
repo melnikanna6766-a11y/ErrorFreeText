@@ -18,6 +18,7 @@ import lombok.Setter;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.UUID;
 
@@ -44,6 +45,15 @@ public class Task {
     @JdbcTypeCode(SqlTypes.JSON)
     @Column(columnDefinition = "json")
     private List<CorrectedTextResponse> response;
+
+    @Column(name = "number_of_characters")
+    private int numberOfCharacters;
+
+    @Column(name = "completion_date")
+    private LocalDate completionDate;
+
+    @Column(name = "number_of_executions")
+    private int numberOfExecutions;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "status_id")

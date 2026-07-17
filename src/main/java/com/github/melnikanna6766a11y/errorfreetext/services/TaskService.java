@@ -26,6 +26,8 @@ public class TaskService {
     public UUID saveTask(TaskRequest task) {
         Task currentTask = new Task();
         currentTask.setInputText(task.text());
+        currentTask.setNumberOfCharacters(task.text().length());
+        currentTask.setNumberOfExecutions((task.text().length()+9999)/10000);
         currentTask.setStatus(statusRepository.findById(1L).orElseThrow(() -> new NoSuchIdException(Status.class, 1L)));
         currentTask.setLanguage(languageRepository.findByLanguage(task.lang()).orElseThrow(() -> new NoSuchIdException(Language.class, task.lang())));
         return taskRepository.save(currentTask).getId();

@@ -6,7 +6,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
-import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.web.client.RestClientResponseException;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.time.LocalDateTime;
@@ -14,7 +14,7 @@ import java.time.LocalDateTime;
 @ControllerAdvice
 public class ExceptionAdvice {
 
-    @ExceptionHandler(NoSuchIdException.class)
+    @ExceptionHandler({NoSuchIdException.class})
     public ResponseEntity<ErrorResponse> handleException(NoSuchIdException exception) {
         return new ResponseEntity<>(
                 new ErrorResponse(
@@ -26,7 +26,6 @@ public class ExceptionAdvice {
     }
 
     @ExceptionHandler(BindException.class)
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ResponseEntity<ErrorResponse>  handleException(BindException exception) {
         return new ResponseEntity<>(
                 new ErrorResponse(
@@ -35,5 +34,16 @@ public class ExceptionAdvice {
                         LocalDateTime.now(),
                         ServletUriComponentsBuilder.fromCurrentRequest().build().getPath()),
                 HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(RestClientResponseException.class)
+    public ResponseEntity<ErrorResponse> handleException(RestClientResponseException exception) {
+        return new ResponseEntity<>(
+                new ErrorResponse(
+                        exception.getMessage(),
+                        HttpStatus.INTERNAL_SERVER_ERROR,
+                        LocalDateTime.now(),
+                        ServletUriComponentsBuilder.fromCurrentRequest().build().getPath()),
+                HttpStatus.INTERNAL_SERVER_ERROR);
     }
 }
