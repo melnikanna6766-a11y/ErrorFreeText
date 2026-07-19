@@ -1,6 +1,6 @@
 package com.github.melnikanna6766a11y.errorfreetext;
 
-import com.github.melnikanna6766a11y.errorfreetext.dto.CheckTextsResponse;
+import com.github.melnikanna6766a11y.errorfreetext.dto.CheckTextsRequest;
 import com.github.melnikanna6766a11y.errorfreetext.dto.CorrectedTextResponse;
 import org.junit.jupiter.api.Test;
 
@@ -13,8 +13,8 @@ public class RequestSenderTest {
     @Test
     public void sendRequest() {
         RequestSender requestSender = new RequestSender();
-        CheckTextsResponse checkTextsResponse = new CheckTextsResponse(new String[]{"карова", "мло", "мяумяу"}, "ru", 0);
-        List<List<CorrectedTextResponse>> correctedTextResponse = requestSender.sendRequest(checkTextsResponse);
+        CheckTextsRequest checkTextsRequest = new CheckTextsRequest(new String[]{"карова", "мло", "мяумяу"}, "ru", 0);
+        List<List<CorrectedTextResponse>> correctedTextResponse = requestSender.sendRequest(checkTextsRequest);
         assertEquals("карова" ,correctedTextResponse.getFirst().getFirst().word());
     }
 }

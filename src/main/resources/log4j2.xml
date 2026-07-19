@@ -12,7 +12,7 @@
     </Appenders>
 
     <Loggers>
-        <Logger name="com.github.meowmeew_meow.archiver" level="DEBUG">
+        <Logger name="com.github.melnikanna6766a11y.errorfreetext" level="DEBUG">
             <AppenderRef ref="Console"/>
         </Logger>
     </Loggers>

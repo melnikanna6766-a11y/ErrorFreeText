@@ -3,6 +3,7 @@ package com.github.melnikanna6766a11y.errorfreetext;
 import com.github.melnikanna6766a11y.errorfreetext.controllers.TaskController;
 import com.github.melnikanna6766a11y.errorfreetext.dto.TaskRequest;
 import com.github.melnikanna6766a11y.errorfreetext.dto.TaskResponse;
+import com.github.melnikanna6766a11y.errorfreetext.exceptions.NoSuchIdException;
 import com.github.melnikanna6766a11y.errorfreetext.services.TaskService;
 import jakarta.servlet.ServletContext;
 import org.junit.jupiter.api.Test;
@@ -16,6 +17,7 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 import tools.jackson.databind.ObjectMapper;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.UUID;
 
@@ -56,6 +58,28 @@ public class TaskControllerTest {
         mockMvc.perform(get("/tasks/"+id))
                 .andExpect(status().isOk())
                 .andExpect(content().json(json));
+    }
+
+    @Test
+    public void getTaskIdExceptionTest() throws Exception {
+        UUID id = UUID.randomUUID();
+        TaskResponse taskResponse = Mockito.mock(TaskResponse.class);
+        Mockito.when(taskResponse.status()).thenReturn("created");
+        Mockito.when(taskResponse.responses()).thenReturn(new ArrayList<>());
+        Mockito.when(taskService.findTaskById(id)).thenThrow(new NoSuchIdException("Task with id: "+ id + " not found"));
+        mockMvc.perform(get("/tasks/"+id))
+                .andExpect(status().is5xxServerError());
+    }
+
+    @Test
+    public void saveTaskBadRequestTest() throws Exception {
+        TaskRequest task = Mockito.mock(TaskRequest.class);
+        Mockito.when(task.text()).thenReturn("456$%^&");
+        Mockito.when(task.lang()).thenReturn("hj");
+        Mockito.when(taskService.saveTask(task)).thenReturn(UUID.randomUUID());
+        String json = new ObjectMapper().writeValueAsString(task);
+        mockMvc.perform(post("/tasks").content(json).contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().is4xxClientError());
     }
 
 }

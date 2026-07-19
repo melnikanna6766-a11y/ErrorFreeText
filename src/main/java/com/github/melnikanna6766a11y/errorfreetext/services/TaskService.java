@@ -10,6 +10,7 @@ import com.github.melnikanna6766a11y.errorfreetext.repositories.LanguageReposito
 import com.github.melnikanna6766a11y.errorfreetext.repositories.StatusRepository;
 import com.github.melnikanna6766a11y.errorfreetext.repositories.TaskRepository;
 import lombok.AllArgsConstructor;
+import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -17,6 +18,7 @@ import java.util.UUID;
 
 @Service
 @AllArgsConstructor
+@Log4j2
 public class TaskService {
     private TaskRepository taskRepository;
     private StatusRepository statusRepository;
@@ -24,17 +26,31 @@ public class TaskService {
 
     @Transactional
     public UUID saveTask(TaskRequest task) {
+        log.info("Processing the task ({}) for saving", task.text());
         Task currentTask = new Task();
         currentTask.setInputText(task.text());
         currentTask.setNumberOfCharacters(task.text().length());
         currentTask.setNumberOfExecutions((task.text().length()+9999)/10000);
         currentTask.setStatus(statusRepository.findById(1L).orElseThrow(() -> new NoSuchIdException(Status.class, 1L)));
         currentTask.setLanguage(languageRepository.findByLanguage(task.lang()).orElseThrow(() -> new NoSuchIdException(Language.class, task.lang())));
+        log.debug("saving the task: lang = {}, status = {}, number of characters = {}, number of executions = {}",
+                currentTask.getLanguage(),
+                currentTask.getStatus(),
+                currentTask.getNumberOfCharacters(),
+                currentTask.getNumberOfExecutions()
+        );
         return taskRepository.save(currentTask).getId();
     }
 
     public TaskResponse findTaskById(UUID id) {
+        log.info("Find task by id {}", id);
         Task task = taskRepository.findById(id).orElseThrow(() -> new NoSuchIdException(Task.class, id));
         return new TaskResponse(task.getResponse(), task.getStatus().getStatus());
+    }
+
+    public UUID saveStatusErrorFor(UUID id) {
+        Task task = taskRepository.findById(id).orElseThrow(() -> new NoSuchIdException(Task.class.getSimpleName() + " with id: " + id + " not found"));
+        task.setStatus(statusRepository.findById(4L).orElseThrow(() -> new NoSuchIdException(Status.class.getSimpleName() + " with id: " + 4 + " not found")));
+        return taskRepository.save(task).getId();
     }
 }

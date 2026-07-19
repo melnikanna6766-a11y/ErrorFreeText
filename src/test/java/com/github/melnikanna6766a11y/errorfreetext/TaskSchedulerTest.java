@@ -19,7 +19,6 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @DataJpaTest
@@ -36,8 +35,8 @@ public class TaskSchedulerTest {
 
     @Test
     public void handleTaskTest() {
-        Mockito.when(taskRepository.findSumSentChars(LocalDate.now())).thenReturn(2345);
-        Mockito.when(taskRepository.findSumSentExecutions(LocalDate.now())).thenReturn(3);
+        Mockito.when(taskRepository.findSumSentChars(LocalDate.now())).thenReturn(null);
+        Mockito.when(taskRepository.findSumSentExecutions(LocalDate.now())).thenReturn(null);
         List<Task> tasks = new ArrayList<>();
         Task task = Mockito.mock(Task.class);
         Mockito.when(task.getInputText()).thenReturn("qwerty");
@@ -87,7 +86,9 @@ public class TaskSchedulerTest {
         Mockito.when(taskRepository.findAllCreatedTasks()).thenReturn(tasks);
         TaskScheduler taskScheduler = new TaskScheduler(taskRepository, statusRepository);
         ResponseHandler responseHandler = new ResponseHandler();
-        responseHandler.createCorrectedTextResponse(task);
+        RequestSender requestSender = Mockito.mock(RequestSender.class);
+        Mockito.when(requestSender.sendRequest(Mockito.any())).thenReturn(null);
+        responseHandler.createCorrectedTextResponse(task, requestSender);
         taskScheduler.handleTask();
     }
 }

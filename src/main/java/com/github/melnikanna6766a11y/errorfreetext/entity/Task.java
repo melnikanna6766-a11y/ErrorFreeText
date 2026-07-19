@@ -47,13 +47,13 @@ public class Task {
     private List<CorrectedTextResponse> response;
 
     @Column(name = "number_of_characters")
-    private int numberOfCharacters;
+    private Integer numberOfCharacters;
 
     @Column(name = "completion_date")
     private LocalDate completionDate;
 
     @Column(name = "number_of_executions")
-    private int numberOfExecutions;
+    private Integer numberOfExecutions;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "status_id")
