@@ -1,5 +1,6 @@
 package com.github.melnikanna6766a11y.errorfreetext.exceptions;
 
+import com.github.melnikanna6766a11y.errorfreetext.dto.CheckTextsRequest;
 import com.github.melnikanna6766a11y.errorfreetext.dto.CorrectedTextResponse;
 import com.github.melnikanna6766a11y.errorfreetext.dto.ErrorResponse;
 import com.github.melnikanna6766a11y.errorfreetext.services.TaskService;

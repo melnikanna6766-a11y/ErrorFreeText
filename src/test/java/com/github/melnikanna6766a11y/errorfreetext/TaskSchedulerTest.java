@@ -1,6 +1,8 @@
 package com.github.melnikanna6766a11y.errorfreetext;
 
+import com.github.melnikanna6766a11y.errorfreetext.dto.CorrectedTextResponse;
 import com.github.melnikanna6766a11y.errorfreetext.entity.Language;
+import com.github.melnikanna6766a11y.errorfreetext.entity.Status;
 import com.github.melnikanna6766a11y.errorfreetext.entity.Task;
 import com.github.melnikanna6766a11y.errorfreetext.exceptions.CounterOverflowException;
 import com.github.melnikanna6766a11y.errorfreetext.repositories.StatusRepository;
@@ -11,9 +13,13 @@ import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.data.jpa.test.autoconfigure.DataJpaTest;
 import org.springframework.boot.jdbc.test.autoconfigure.AutoConfigureTestDatabase;
+import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
+import org.springframework.web.client.RestClient;
+import org.springframework.web.client.RestClientResponseException;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -82,6 +88,7 @@ public class TaskSchedulerTest {
         Language language = Mockito.mock(Language.class);
         Mockito.when(language.getLanguage()).thenReturn("en");
         Mockito.when(task.getLanguage()).thenReturn(language);
+        Mockito.when(task.getStatus()).thenReturn(new Status());
         tasks.add(task);
         Mockito.when(taskRepository.findAllCreatedTasks()).thenReturn(tasks);
         TaskScheduler taskScheduler = new TaskScheduler(taskRepository, statusRepository);

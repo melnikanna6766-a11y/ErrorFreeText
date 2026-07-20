@@ -18,7 +18,7 @@ public class ResponseHandler {
         ArrayHandler arrayHandler = new ArrayHandler();
         int limit = arrayHandler.calculateLimit(text);
         List<CheckTextsRequest> requests = new ArrayList<>();
-        while (index <= text.length-1) {
+        while (index <= text.length - 1) {
             String[] textResponse = arrayHandler.createResponseArray(text, index, limit);
             index += limit + 1;
             CheckTextsRequest checkTextsRequest = new CheckTextsRequest(
@@ -32,7 +32,7 @@ public class ResponseHandler {
     }
 
     public boolean createCorrectedTextResponse(Task task, RequestSender requestSender) {
-        log.info("Creating response from Yandex API for task with id {}", task.getId());
+        log.info("Creating response from Yandex speller API for task with id {}", task.getId());
         List<CheckTextsRequest> responses = createCheckTextRequest(task);
         List<CorrectedTextResponse> correctedTextResponses = new ArrayList<>();
         for (CheckTextsRequest response : responses) {

@@ -58,6 +58,7 @@ public class TaskScheduler {
         }
         task.setStatus(inProgress);
         taskRepository.save(task);
+        log.info("");
         boolean isCompleted = new ResponseHandler().createCorrectedTextResponse(task, new RequestSender());
         if (isCompleted) {
             task.setCompletionDate(LocalDate.now());
