@@ -20,8 +20,6 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantLock;
 
 @Service
 @Log4j2
@@ -42,7 +40,9 @@ public class TaskScheduler {
         List<Task> tasks = taskRepository.findAllCreatedTasks();
         log.info("Starting handle {} tasks ", tasks.size());
         for (Task task : tasks) {
-            taskProcessing(task);
+            if (processingTasks.putIfAbsent(task.getId(), task) == null) {
+                taskProcessing(task);
+            }
         }
         log.info("Finishing handle {} tasks from current scheduler call", tasks.size());
     }
@@ -57,23 +57,15 @@ public class TaskScheduler {
             dayCharsCounter = 0;
             dayExecutionsCounter = 0;
         }
-        if (dayCharsCounter > charsLimit || dayExecutionsCounter  > executionLimit) {
+        if (dayCharsCounter > charsLimit || dayExecutionsCounter > executionLimit) {
             throw new CounterOverflowException("The number of requests per day or the number of characters has exceeded the limit");
         }
-        Lock lock = new ReentrantLock();
-        try {
-            lock.lock();
-            if (processingTasks.putIfAbsent(task.getId(), task) == null) {
-                task.setStatus(inProgress);
-                taskRepository.save(task);
-                long statusId = responseHandler.createCorrectedTextResponse(task, new RequestSender(), charsLimit - dayCharsCounter);
-                task.setStatus(statusRepository.findById(statusId).orElseThrow(() -> new NoSuchIdException(Status.class, statusId)));
-                task.setCompletionDate(LocalDate.now());
-                taskRepository.save(task);
-                log.info("Finishing processing task with id {} with status {}", task.getId(), task.getStatus().getStatus());
-            }
-        } finally {
-            lock.unlock();
-        }
+        task.setStatus(inProgress);
+        taskRepository.save(task);
+        long statusId = responseHandler.createCorrectedTextResponse(task, new RequestSender(), charsLimit - dayCharsCounter);
+        task.setStatus(statusRepository.findById(statusId).orElseThrow(() -> new NoSuchIdException(Status.class, statusId)));
+        task.setCompletionDate(LocalDate.now());
+        taskRepository.save(task);
+        log.info("Finishing processing task with id {} with status {}", task.getId(), task.getStatus().getStatus());
     }
 }
