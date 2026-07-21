@@ -55,6 +55,9 @@ public class Task {
     @Column(name = "number_of_executions")
     private Integer numberOfExecutions;
 
+    @Column(name = "number_of_saved_elements")
+    private Integer numberOfSavedElements;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "status_id")
     private Status status;

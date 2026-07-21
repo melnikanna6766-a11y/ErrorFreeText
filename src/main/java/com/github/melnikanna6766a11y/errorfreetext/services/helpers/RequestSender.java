@@ -1,21 +1,17 @@
-package com.github.melnikanna6766a11y.errorfreetext;
+package com.github.melnikanna6766a11y.errorfreetext.services.helpers;
 
 import com.github.melnikanna6766a11y.errorfreetext.dto.CheckTextsRequest;
 import com.github.melnikanna6766a11y.errorfreetext.dto.CorrectedTextResponse;
 import lombok.extern.log4j.Log4j2;
-import org.apache.tomcat.util.buf.UriUtil;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.MediaType;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestClient;
-import org.springframework.web.util.UriUtils;
 
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
-import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Log4j2
 public class RequestSender {

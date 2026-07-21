@@ -14,7 +14,9 @@ import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Arrays;
 import java.util.UUID;
+import java.util.concurrent.atomic.AtomicInteger;
 
 @Service
 @AllArgsConstructor
@@ -29,8 +31,11 @@ public class TaskService {
         log.info("Processing the task ({}) for saving", task.text());
         Task currentTask = new Task();
         currentTask.setInputText(task.text());
-        currentTask.setNumberOfCharacters(task.text().length());
-        currentTask.setNumberOfExecutions((task.text().length()+9999)/10000);
+        AtomicInteger numberOfCharacters = new AtomicInteger();
+        Arrays.stream(task.text().split(" ")).forEach(word -> numberOfCharacters.addAndGet(word.length()));
+        currentTask.setNumberOfCharacters(numberOfCharacters.get());
+        currentTask.setNumberOfExecutions((numberOfCharacters.get()+9999)/10000);
+        currentTask.setNumberOfSavedElements(0);
         currentTask.setStatus(statusRepository.findById(1L).orElseThrow(() -> new NoSuchIdException(Status.class, 1L)));
         currentTask.setLanguage(languageRepository.findByLanguage(task.lang()).orElseThrow(() -> new NoSuchIdException(Language.class, task.lang())));
         log.debug("saving the task: lang = {}, status = {}, number of characters = {}, number of executions = {}",

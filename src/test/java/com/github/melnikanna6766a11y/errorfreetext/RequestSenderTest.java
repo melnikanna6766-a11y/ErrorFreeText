@@ -2,8 +2,8 @@ package com.github.melnikanna6766a11y.errorfreetext;
 
 import com.github.melnikanna6766a11y.errorfreetext.dto.CheckTextsRequest;
 import com.github.melnikanna6766a11y.errorfreetext.dto.CorrectedTextResponse;
+import com.github.melnikanna6766a11y.errorfreetext.services.helpers.RequestSender;
 import org.junit.jupiter.api.Test;
-import org.springframework.web.client.RestClient;
 
 import java.util.List;
 

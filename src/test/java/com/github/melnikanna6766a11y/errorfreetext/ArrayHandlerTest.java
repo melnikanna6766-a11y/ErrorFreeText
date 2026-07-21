@@ -1,5 +1,6 @@
 package com.github.melnikanna6766a11y.errorfreetext;
 
+import com.github.melnikanna6766a11y.errorfreetext.services.helpers.ArrayHandler;
 import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
@@ -15,7 +16,7 @@ public class ArrayHandlerTest {
         String[] strings = new String[10000];
         Arrays.fill(strings, "мяу");
         strings[3332] = "jjj";
-        String[] testArray = arrayHandler.createResponseArray(strings, 0, arrayHandler.calculateLimit(strings));
+        String[] testArray = arrayHandler.createResponseArray(strings, 0, arrayHandler.calculateLimit(strings, 100000));
         assertEquals(3333, testArray.length);
         assertEquals("jjj", testArray[3332]);
     }
@@ -26,7 +27,7 @@ public class ArrayHandlerTest {
         ArrayHandler arrayHandler = new ArrayHandler();
         String[] strings = new String[20000];
         Arrays.fill(strings, "мяу");
-        int limit =  arrayHandler.calculateLimit(strings);
+        int limit =  arrayHandler.calculateLimit(strings, 100000);
         String[] testArray = null;
         while (index <= strings.length) {
             testArray = arrayHandler.createResponseArray(strings, index, limit);
@@ -41,7 +42,7 @@ public class ArrayHandlerTest {
         ArrayHandler arrayHandler = new ArrayHandler();
         String[] strings = new String[19000];
         Arrays.fill(strings, "мяу");
-        int limit =  arrayHandler.calculateLimit(strings);
+        int limit =  arrayHandler.calculateLimit(strings, 100000);
         String[] testArray = null;
         while (index <= strings.length-1) {
             testArray = arrayHandler.createResponseArray(strings, index, limit);

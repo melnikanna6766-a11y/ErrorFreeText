@@ -12,12 +12,12 @@ import java.util.UUID;
 public interface TaskRepository extends JpaRepository<Task, UUID> {
 
     @EntityGraph(value = "task-entity-graph")
-    @Query("select t from Task t join t.status s where s.id = 1")
+    @Query("select t from Task t join t.status s where s.id = 1 or s.id = 5")
     public List<Task> findAllCreatedTasks();
 
     @Query("select sum(t.numberOfCharacters) from Task t where t.completionDate = :date")
-    public Integer findSumSentChars(LocalDate date);
+    public Integer calculateSendedCharsLastDay(LocalDate date);
 
     @Query("select sum(t.numberOfExecutions) from Task t where t.completionDate = :date")
-    public Integer findSumSentExecutions(LocalDate date);
+    public Integer calculateExecutionsLastDay(LocalDate date);
 }

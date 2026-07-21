@@ -1,4 +1,4 @@
-package com.github.melnikanna6766a11y.errorfreetext;
+package com.github.melnikanna6766a11y.errorfreetext.services.helpers;
 
 import java.util.Arrays;
 
