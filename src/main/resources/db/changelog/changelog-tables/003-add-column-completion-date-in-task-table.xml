@@ -7,11 +7,9 @@
                    http://www.liquibase.org/xml/ns/dbchangelog
                    http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
 
-    <changeSet author="anna" id="insert-initial-data-into-task-status-table">
-        <insert tableName="task_status">
-            <column name="id" valueNumeric="5"/>
-            <column name="status" value="incomplete"/>
-        </insert>
+    <changeSet author="anna" id="add-column-completion-date-in-task-table">
+        <addColumn tableName="tasks">
+            <column name="completion_date" type="Date"/>
+        </addColumn>
     </changeSet>
-
 </databaseChangeLog>

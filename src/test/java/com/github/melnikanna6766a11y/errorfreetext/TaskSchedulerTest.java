@@ -1,14 +1,14 @@
 package com.github.melnikanna6766a11y.errorfreetext;
 
 import com.github.melnikanna6766a11y.errorfreetext.entity.Language;
-import com.github.melnikanna6766a11y.errorfreetext.entity.Status;
+import com.github.melnikanna6766a11y.errorfreetext.dto.Status;
 import com.github.melnikanna6766a11y.errorfreetext.entity.Task;
 import com.github.melnikanna6766a11y.errorfreetext.exceptions.CounterOverflowException;
 import com.github.melnikanna6766a11y.errorfreetext.repositories.StatusRepository;
 import com.github.melnikanna6766a11y.errorfreetext.repositories.TaskRepository;
 import com.github.melnikanna6766a11y.errorfreetext.services.TaskScheduler;
-import com.github.melnikanna6766a11y.errorfreetext.services.helpers.RequestSender;
-import com.github.melnikanna6766a11y.errorfreetext.services.helpers.ResponseHandler;
+import com.github.melnikanna6766a11y.errorfreetext.services.helpers.SpellerRequestSender;
+import com.github.melnikanna6766a11y.errorfreetext.services.helpers.RequestHandler;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mockito;
@@ -38,7 +38,7 @@ public class TaskSchedulerTest {
     private StatusRepository statusRepository;
 
     @InjectMocks
-    private ResponseHandler responseHandler;
+    private RequestHandler requestHandler;
 
     @Test
     public void handleTaskTest() {
@@ -53,8 +53,8 @@ public class TaskSchedulerTest {
         Mockito.when(language.getLanguage()).thenReturn("en");
         Mockito.when(task.getLanguage()).thenReturn(language);
         tasks.add(task);
-        Mockito.when(taskRepository.findAllCreatedTasks()).thenReturn(tasks);
-        TaskScheduler taskScheduler = new TaskScheduler(taskRepository, statusRepository, responseHandler);
+        Mockito.when(taskRepository.findUnhandledTasks()).thenReturn(tasks);
+        TaskScheduler taskScheduler = new TaskScheduler(taskRepository, statusRepository, requestHandler);
         taskScheduler.handleTask();
     }
 
@@ -71,8 +71,8 @@ public class TaskSchedulerTest {
         Mockito.when(language.getLanguage()).thenReturn("en");
         Mockito.when(task.getLanguage()).thenReturn(language);
         tasks.add(task);
-        Mockito.when(taskRepository.findAllCreatedTasks()).thenReturn(tasks);
-        TaskScheduler taskScheduler = new TaskScheduler(taskRepository, statusRepository, responseHandler);
+        Mockito.when(taskRepository.findUnhandledTasks()).thenReturn(tasks);
+        TaskScheduler taskScheduler = new TaskScheduler(taskRepository, statusRepository, requestHandler);
         assertThrows(CounterOverflowException.class, taskScheduler::handleTask);
 
     }
@@ -91,12 +91,12 @@ public class TaskSchedulerTest {
         Mockito.when(task.getLanguage()).thenReturn(language);
         Mockito.when(task.getStatus()).thenReturn(new Status());
         tasks.add(task);
-        Mockito.when(taskRepository.findAllCreatedTasks()).thenReturn(tasks);
-        TaskScheduler taskScheduler = new TaskScheduler(taskRepository, statusRepository, responseHandler);
-        ResponseHandler responseHandler = new ResponseHandler();
-        RequestSender requestSender = Mockito.mock(RequestSender.class);
-        Mockito.when(requestSender.sendRequest(Mockito.any())).thenReturn(null);
-        responseHandler.createCorrectedTextResponse(task, requestSender, 9_999_765);
+        Mockito.when(taskRepository.findUnhandledTasks()).thenReturn(tasks);
+        TaskScheduler taskScheduler = new TaskScheduler(taskRepository, statusRepository, this.requestHandler);
+        RequestHandler requestHandler = new RequestHandler();
+        SpellerRequestSender spellerRequestSender = Mockito.mock(SpellerRequestSender.class);
+        Mockito.when(spellerRequestSender.sendRequest(Mockito.any())).thenReturn(null);
+        requestHandler.createCorrectedTextResponse(task, spellerRequestSender, 9_999_765);
         taskScheduler.handleTask();
     }
 
@@ -114,12 +114,12 @@ public class TaskSchedulerTest {
         Mockito.when(task.getLanguage()).thenReturn(language);
         Mockito.when(task.getStatus()).thenReturn(new Status());
         tasks.add(task);
-        Mockito.when(taskRepository.findAllCreatedTasks()).thenReturn(tasks);
-        TaskScheduler taskScheduler = new TaskScheduler(taskRepository, statusRepository, responseHandler);
-        ResponseHandler responseHandler = new ResponseHandler();
-        RequestSender requestSender = Mockito.mock(RequestSender.class);
-        Mockito.when(requestSender.sendRequest(Mockito.any())).thenReturn(new ArrayList<>());
-        responseHandler.createCorrectedTextResponse(task, requestSender, 4);
+        Mockito.when(taskRepository.findUnhandledTasks()).thenReturn(tasks);
+        TaskScheduler taskScheduler = new TaskScheduler(taskRepository, statusRepository, this.requestHandler);
+        RequestHandler requestHandler = new RequestHandler();
+        SpellerRequestSender spellerRequestSender = Mockito.mock(SpellerRequestSender.class);
+        Mockito.when(spellerRequestSender.sendRequest(Mockito.any())).thenReturn(new ArrayList<>());
+        requestHandler.createCorrectedTextResponse(task, spellerRequestSender, 4);
         taskScheduler.handleTask();
     }
 }

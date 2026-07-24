@@ -1,8 +1,7 @@
 package com.github.melnikanna6766a11y.errorfreetext.exceptions;
 
-import com.github.melnikanna6766a11y.errorfreetext.dto.CheckTextsRequest;
-import com.github.melnikanna6766a11y.errorfreetext.dto.CorrectedTextResponse;
 import com.github.melnikanna6766a11y.errorfreetext.dto.ErrorResponse;
+import com.github.melnikanna6766a11y.errorfreetext.entity.Status;
 import com.github.melnikanna6766a11y.errorfreetext.services.TaskService;
 import lombok.AllArgsConstructor;
 import lombok.extern.log4j.Log4j2;
@@ -12,11 +11,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
-import org.springframework.web.client.RestClientResponseException;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.time.LocalDateTime;
-import java.util.UUID;
 
 @ControllerAdvice
 @Log4j2
@@ -48,21 +45,10 @@ public class ExceptionAdvice {
                 HttpStatus.BAD_REQUEST);
     }
 
-    @ExceptionHandler(RestClientResponseException.class)
-    public ResponseEntity<ErrorResponse> handleException(RestClientResponseException exception) {
-        log.error(exception.getMessage(), exception.getResponseBodyAsString());
-        return new ResponseEntity<>(
-                new ErrorResponse(
-                        exception.getMessage(),
-                        HttpStatus.INTERNAL_SERVER_ERROR,
-                        LocalDateTime.now(),
-                        ServletUriComponentsBuilder.fromCurrentRequest().build().getPath()),
-                HttpStatus.INTERNAL_SERVER_ERROR);
-    }
-
     @ExceptionHandler(CounterOverflowException.class)
     public ResponseEntity<ErrorResponse> handleException(CounterOverflowException exception) {
         log.error(exception.getMessage());
+        exception.getUncompletedTasks().forEach(task -> taskService.saveStatusFor(Status.created, task));
         return new ResponseEntity<>(
                 new ErrorResponse(
                         exception.getMessage(),
@@ -76,4 +62,18 @@ public class ExceptionAdvice {
     public void handleException(ClientAbortException exception) {
         log.error(exception.getMessage());
     }
+
+    @ExceptionHandler(SpellerServerErrorException.class)
+    public void handleException(SpellerServerErrorException exception) {
+        log.error(exception.getMessage());
+//        new ErrorResponse(
+//                exception.getMessage(),
+//                HttpStatus.INTERNAL_SERVER_ERROR,
+//                LocalDateTime.now(),
+//                ServletUriComponentsBuilder.fromCurrentRequest().build().getPath()),
+//                HttpStatus.INTERNAL_SERVER_ERROR);
+//        exception.getTask().setSpellerResponses();
+        taskService.saveStatusFor(Status.error, exception.getTask());
+    }
+
 }

@@ -1,21 +1,21 @@
 package com.github.melnikanna6766a11y.errorfreetext;
 
 import com.github.melnikanna6766a11y.errorfreetext.dto.CheckTextsRequest;
-import com.github.melnikanna6766a11y.errorfreetext.dto.CorrectedTextResponse;
-import com.github.melnikanna6766a11y.errorfreetext.services.helpers.RequestSender;
+import com.github.melnikanna6766a11y.errorfreetext.dto.SpellerResponse;
+import com.github.melnikanna6766a11y.errorfreetext.services.helpers.SpellerRequestSender;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class RequestSenderTest {
+public class SpellerRequestSenderTest {
 
     @Test
     public void sendRequest() {
-        RequestSender requestSender = new RequestSender();
+        SpellerRequestSender spellerRequestSender = new SpellerRequestSender();
         CheckTextsRequest checkTextsRequest = new CheckTextsRequest(new String[]{"карова", "мло", "мяумяу"}, "ru", 0);
-        List<List<CorrectedTextResponse>> correctedTextResponse = requestSender.sendRequest(checkTextsRequest);
+        List<List<SpellerResponse>> correctedTextResponse = spellerRequestSender.sendRequest(checkTextsRequest);
         assertEquals("карова" ,correctedTextResponse.getFirst().getFirst().word());
     }
 }

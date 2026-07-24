@@ -15,8 +15,8 @@
             <column name="input_text" type="text">
                 <constraints nullable="false"/>
             </column>
-            <column name="response" type="json"/>
-            <column defaultValueNumeric="1" name="status_id" type="bigint">
+            <column name="speller_response" type="json"/>
+            <column name="status" type="varchar(20)">
                 <constraints nullable="false" />
             </column>
             <column name="language_id" type="bigint">
@@ -24,19 +24,12 @@
             </column>
         </createTable>
 
-        <addForeignKeyConstraint baseColumnNames="status_id"
-                                 baseTableName="tasks"
-                                 constraintName="tasks_task_status_fkey"
-                                 referencedColumnNames="id"
-                                 referencedTableName="task_status"/>
-
         <addForeignKeyConstraint baseColumnNames="language_id"
                                  baseTableName="tasks"
                                  constraintName="tasks_languages_fkey"
                                  referencedColumnNames="id"
                                  referencedTableName="languages"/>
         <rollback>
-            alter table tasks drop constraint tasks_task_status_fkey;
             alter table tasks drop constraint tasks_languages_fkey;
             drop table tasks;
         </rollback>

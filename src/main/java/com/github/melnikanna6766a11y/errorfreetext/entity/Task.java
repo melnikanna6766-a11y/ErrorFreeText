@@ -1,6 +1,6 @@
 package com.github.melnikanna6766a11y.errorfreetext.entity;
 
-import com.github.melnikanna6766a11y.errorfreetext.dto.CorrectedTextResponse;
+import com.github.melnikanna6766a11y.errorfreetext.dto.SpellerResponse;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -42,24 +42,22 @@ public class Task {
     @Column(name = "input_text")
     private String inputText;
 
+    //todo: list<list<>>
+    // to exclude number of execution field
     @JdbcTypeCode(SqlTypes.JSON)
-    @Column(columnDefinition = "json")
-    private List<CorrectedTextResponse> response;
-
-    @Column(name = "number_of_characters")
-    private Integer numberOfCharacters;
+    @Column(columnDefinition = "json", name = "speller_response")
+    private List<List<SpellerResponse>> spellerResponses;
 
     @Column(name = "completion_date")
     private LocalDate completionDate;
 
-    @Column(name = "number_of_executions")
-    private Integer numberOfExecutions;
+    //todo: delete field
 
-    @Column(name = "number_of_saved_elements")
-    private Integer numberOfSavedElements;
+    @Column(name = "last_processed_word_index")
+    private Integer lastProcessedWordIndex;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "status_id")
+
+    @Column(name = "status")
     private Status status;
 
     @ManyToOne(fetch = FetchType.LAZY)

@@ -2,7 +2,7 @@ package com.github.melnikanna6766a11y.errorfreetext.dto;
 
 import java.util.List;
 
-public record CorrectedTextResponse(
+public record SpellerResponse(
         int code,
         int pos,
         int row,
