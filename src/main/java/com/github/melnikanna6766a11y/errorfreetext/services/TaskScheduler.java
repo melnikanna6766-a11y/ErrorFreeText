@@ -4,7 +4,7 @@ import com.github.melnikanna6766a11y.errorfreetext.dto.CheckTextsRequest;
 import com.github.melnikanna6766a11y.errorfreetext.dto.SpellerResponse;
 import com.github.melnikanna6766a11y.errorfreetext.entity.Status;
 import com.github.melnikanna6766a11y.errorfreetext.services.helpers.LimitsHandler;
-import com.github.melnikanna6766a11y.errorfreetext.services.helpers.SpellerRequestSender;
+import com.github.melnikanna6766a11y.errorfreetext.services.helpers.SpellerInvoker;
 import com.github.melnikanna6766a11y.errorfreetext.services.helpers.RequestHandler;
 import com.github.melnikanna6766a11y.errorfreetext.entity.Task;
 import com.github.melnikanna6766a11y.errorfreetext.repositories.TaskRepository;
@@ -20,6 +20,7 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -43,9 +44,9 @@ public class TaskScheduler {
         for (Task task : tasks) {
             lock.lock();
             try {
-            TaskWrapper taskWrapper = new TaskWrapper(task);
-            saveResponseToTask(taskWrapper, performSpellerRequest(taskWrapper));
-            limitsHandler.updateCounter(taskWrapper);
+            List<List<SpellerResponse>> spellerResponse = performSpellerRequest(task);
+            saveResponseToTask(task, spellerResponse);
+            limitsHandler.updateCounter(task);
             } finally {
                 lock.unlock();
             }
@@ -58,60 +59,43 @@ public class TaskScheduler {
         taskRepository.saveAll(task);
     }
 
-    @Transactional
-    public void saveResponseToTask(TaskWrapper task, List<List<SpellerResponse>> spellerResponse) {
-        log.info("Starting processing task with id {}", task.getTask().getId());
-        if (task.getTask().getSpellerResponses() != null) {
-            spellerResponse.addAll(task.getTask().getSpellerResponses());
-        }
-        task.getTask().setSpellerResponses(spellerResponse);
-        task.getTask().setCompletionDate(LocalDate.now());
-        taskRepository.save(task.getTask());
-        log.info("Finishing processing task with id {} with status {}", task.getTask().getId(), task.getTask().getStatus());
-    }
-
-    private List<List<SpellerResponse>> performSpellerRequest(TaskWrapper task) {
+    private List<List<SpellerResponse>> performSpellerRequest(Task task) {
+        log.info("Creating and send request to speller for task with id {}", task.getId());
+        TaskWrapper taskWrapper = new TaskWrapper(task);
         List<List<SpellerResponse>> spellerResponse = new ArrayList<>();
         int writtenChars = 0;
-        while (
-                task.getTask().getLastProcessedWordIndex() < task.getArrayLength()
-                        && writtenChars < limitsHandler.calculateNumberOfRemainingCharacters()
-        ) {
-            CheckTextsRequest request = requestHandler.generateSpellerRequest(task.getTask());
-            List<List<SpellerResponse>> spellerResponseList;
-            if ((spellerResponseList = sendRequestToSpeller(request, task.getTask())) != null) {
-                spellerResponse.addAll(spellerResponseList);
-            } else {
-                task.getTask().setStatus(Status.error);
-            }
+        while (taskWrapper.lessThanRequestLengthWasWritten() && writtenChars < limitsHandler.calculateRemainingChars()) {
+            CheckTextsRequest request = requestHandler.generateSpellerRequest(task);
+            spellerResponse.addAll(Objects.requireNonNull(sendRequestToSpeller(request, task)));
             writtenChars += Arrays.stream(request.text()).mapToInt(String::length).sum();
         }
-        task.getTask().setLastProcessedWordIndex(task.getTask().getLastProcessedWordIndex() - 1);
-        log.info("Created check text request for task with id {}, count of requests", task.getTask().getId());
-        if (task.getTask().getLastProcessedWordIndex() < task.getArrayLength()) {
-            task.getTask().setStatus(Status.incompleted);
-        } else {
-            task.getTask().setStatus(Status.completed);
+        task.setLastProcessedWordIndex(task.getLastProcessedWordIndex() - 1);
+        if (task.getSpellerResponses() != null) {
+            spellerResponse.addAll(task.getSpellerResponses());
         }
+        log.info("Created speller response for task with id {}, count of requests {}", task.getId(), spellerResponse.size());
         return spellerResponse;
+    }
+
+    @Transactional
+    public void saveResponseToTask(Task task, List<List<SpellerResponse>> spellerResponse) {
+        TaskWrapper taskWrapper = new TaskWrapper(task);
+        log.info("Starting set fields and saving task with id {}", task.getId());
+        if (taskWrapper.lessThanRequestLengthWasWritten()) {
+            task.setStatus(Status.incompleted);
+        } else {
+            task.setStatus(Status.completed);
+        }
+        task.setSpellerResponses(spellerResponse);
+        task.setCompletionDate(LocalDate.now());
+        taskRepository.save(task);
+        log.info("Finishing saving task with id {} with status {}", task.getId(), task.getStatus());
     }
 
 
     private List<List<SpellerResponse>> sendRequestToSpeller(CheckTextsRequest request, Task task) {
-        SpellerRequestSender spellerRequestSender = new SpellerRequestSender();
-        List<List<SpellerResponse>> spellerResponses = new ArrayList<>();
-        List<List<SpellerResponse>> spellerResponse;
-        if ((spellerResponse = spellerRequestSender.sendRequest(request, task)) != null) {
-            spellerResponses.add(
-                    spellerResponse.stream()
-                            .filter(response -> !response.isEmpty())
-                            .map(List::removeFirst)
-                            .toList()
-            );
-        } else {
-            log.info("Response for task, was not created because no response body was available");
-            return null;
-        }
-        return spellerResponses;
+        SpellerInvoker spellerInvoker = new SpellerInvoker();
+        List<List<SpellerResponse>> spellerResponse = spellerInvoker.sendRequestToSpeller(request, task);
+        return spellerInvoker.composeResponseFromSpeller(spellerResponse);
     }
 }

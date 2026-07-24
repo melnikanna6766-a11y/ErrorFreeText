@@ -51,7 +51,7 @@ public class LimitsHandler {
         }
     }
     
-    public void updateCounter(TaskWrapper task) {
+    public void updateCounter(Task task) {
         if (areCountersBelowTheLimits()) {
             throw new CounterOverflowException("The number of requests per day or the number of characters has exceeded the limit");
         }
@@ -59,8 +59,8 @@ public class LimitsHandler {
             dayCharsCounter.set(0);
             dayExecutionsCounter.set(0);
         }
-        dayCharsCounter.addAndGet(task.getNumberOfCharacters());
-        dayExecutionsCounter.addAndGet(task.getTask().getSpellerResponses().size());
+        dayCharsCounter.addAndGet(new TaskWrapper(task).getNumberOfCharacters());
+        dayExecutionsCounter.addAndGet(task.getSpellerResponses().size());
         dateOfLastAccess = LocalDate.now();
     }
 
@@ -68,7 +68,7 @@ public class LimitsHandler {
         return dayCharsCounter.get() > charsLimit || dayExecutionsCounter.get() > executionLimit;
     }
 
-    public long calculateNumberOfRemainingCharacters() {
+    public long calculateRemainingChars() {
         return charsLimit - dayCharsCounter.get();
     }
 }

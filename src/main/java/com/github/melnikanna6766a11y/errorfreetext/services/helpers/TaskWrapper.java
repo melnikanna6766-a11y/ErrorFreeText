@@ -7,7 +7,7 @@ import java.util.Arrays;
 
 @Getter
 public class TaskWrapper {
-    private Task task;
+    private final Task task;
     private long numberOfCharacters;
     private long arrayLength;
 
@@ -17,5 +17,9 @@ public class TaskWrapper {
                 .mapToLong(String::length)
                 .sum();
         this.arrayLength = task.getInputText().split("[,.\\s]+").length;
+    }
+
+    public boolean lessThanRequestLengthWasWritten() {
+        return task.getLastProcessedWordIndex() < arrayLength;
     }
 }

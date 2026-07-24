@@ -3,6 +3,8 @@ package com.github.melnikanna6766a11y.errorfreetext.entity;
 import com.github.melnikanna6766a11y.errorfreetext.dto.SpellerResponse;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -30,7 +32,6 @@ import java.util.UUID;
 @NamedEntityGraph(
         name = "task-entity-graph",
         attributeNodes = {
-                @NamedAttributeNode("status"),
                 @NamedAttributeNode("language")
         }
 )
@@ -42,8 +43,6 @@ public class Task {
     @Column(name = "input_text")
     private String inputText;
 
-    //todo: list<list<>>
-    // to exclude number of execution field
     @JdbcTypeCode(SqlTypes.JSON)
     @Column(columnDefinition = "json", name = "speller_response")
     private List<List<SpellerResponse>> spellerResponses;
@@ -51,12 +50,10 @@ public class Task {
     @Column(name = "completion_date")
     private LocalDate completionDate;
 
-    //todo: delete field
-
     @Column(name = "last_processed_word_index")
     private Integer lastProcessedWordIndex;
 
-
+    @Enumerated(EnumType.STRING)
     @Column(name = "status")
     private Status status;
 

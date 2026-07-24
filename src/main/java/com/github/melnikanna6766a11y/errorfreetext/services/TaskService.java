@@ -7,7 +7,6 @@ import com.github.melnikanna6766a11y.errorfreetext.entity.Status;
 import com.github.melnikanna6766a11y.errorfreetext.entity.Task;
 import com.github.melnikanna6766a11y.errorfreetext.exceptions.NoSuchIdException;
 import com.github.melnikanna6766a11y.errorfreetext.repositories.LanguageRepository;
-import com.github.melnikanna6766a11y.errorfreetext.repositories.StatusRepository;
 import com.github.melnikanna6766a11y.errorfreetext.repositories.TaskRepository;
 import lombok.AllArgsConstructor;
 import lombok.extern.log4j.Log4j2;
@@ -41,7 +40,7 @@ public class TaskService {
     public TaskResponse findTaskById(UUID id) {
         log.info("Find task by id {}", id);
         Task task = taskRepository.findById(id).orElseThrow(() -> new NoSuchIdException(Task.class, id));
-        return new TaskResponse(task.getSpellerResponses(), task.getStatus());
+        return new TaskResponse(task.getSpellerResponses(), task.getStatus(), null);
     }
 
     public UUID saveStatusFor(Status status, Task task) {

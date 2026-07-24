@@ -1,13 +1,11 @@
 package com.github.melnikanna6766a11y.errorfreetext;
 
 import com.github.melnikanna6766a11y.errorfreetext.entity.Language;
-import com.github.melnikanna6766a11y.errorfreetext.dto.Status;
 import com.github.melnikanna6766a11y.errorfreetext.entity.Task;
 import com.github.melnikanna6766a11y.errorfreetext.exceptions.CounterOverflowException;
-import com.github.melnikanna6766a11y.errorfreetext.repositories.StatusRepository;
 import com.github.melnikanna6766a11y.errorfreetext.repositories.TaskRepository;
 import com.github.melnikanna6766a11y.errorfreetext.services.TaskScheduler;
-import com.github.melnikanna6766a11y.errorfreetext.services.helpers.SpellerRequestSender;
+import com.github.melnikanna6766a11y.errorfreetext.services.helpers.SpellerInvoker;
 import com.github.melnikanna6766a11y.errorfreetext.services.helpers.RequestHandler;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -94,9 +92,9 @@ public class TaskSchedulerTest {
         Mockito.when(taskRepository.findUnhandledTasks()).thenReturn(tasks);
         TaskScheduler taskScheduler = new TaskScheduler(taskRepository, statusRepository, this.requestHandler);
         RequestHandler requestHandler = new RequestHandler();
-        SpellerRequestSender spellerRequestSender = Mockito.mock(SpellerRequestSender.class);
-        Mockito.when(spellerRequestSender.sendRequest(Mockito.any())).thenReturn(null);
-        requestHandler.createCorrectedTextResponse(task, spellerRequestSender, 9_999_765);
+        SpellerInvoker spellerInvoker = Mockito.mock(SpellerInvoker.class);
+        Mockito.when(spellerInvoker.sendRequestToSpeller(Mockito.any())).thenReturn(null);
+        requestHandler.createCorrectedTextResponse(task, spellerInvoker, 9_999_765);
         taskScheduler.handleTask();
     }
 
@@ -117,9 +115,9 @@ public class TaskSchedulerTest {
         Mockito.when(taskRepository.findUnhandledTasks()).thenReturn(tasks);
         TaskScheduler taskScheduler = new TaskScheduler(taskRepository, statusRepository, this.requestHandler);
         RequestHandler requestHandler = new RequestHandler();
-        SpellerRequestSender spellerRequestSender = Mockito.mock(SpellerRequestSender.class);
-        Mockito.when(spellerRequestSender.sendRequest(Mockito.any())).thenReturn(new ArrayList<>());
-        requestHandler.createCorrectedTextResponse(task, spellerRequestSender, 4);
+        SpellerInvoker spellerInvoker = Mockito.mock(SpellerInvoker.class);
+        Mockito.when(spellerInvoker.sendRequestToSpeller(Mockito.any())).thenReturn(new ArrayList<>());
+        requestHandler.createCorrectedTextResponse(task, spellerInvoker, 4);
         taskScheduler.handleTask();
     }
 }

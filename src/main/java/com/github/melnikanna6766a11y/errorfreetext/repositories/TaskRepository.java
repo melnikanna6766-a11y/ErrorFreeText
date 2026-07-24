@@ -12,10 +12,10 @@ import java.util.UUID;
 public interface TaskRepository extends JpaRepository<Task, UUID> {
 
     @EntityGraph(value = "task-entity-graph")
-    @Query("select t from Task t join t.status s where s.id = 1 or s.id = 5")
+    @Query("select t from Task t where t.status = 'created' or t.status = 'incompleted'")
     public List<Task> findUnhandledTasks();
 
     @EntityGraph(value = "task-entity-graph")
-    @Query("select t from Task t join t.status s where (s.id = 3 or s.id = 5) and t.completionDate = :date")
+    @Query("select t from Task t where (t.status = 'completed' or t.status = 'incompleted') and t.completionDate = :date")
     public List<Task> findHandledDayTasks(LocalDate date);
 }

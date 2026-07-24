@@ -14,12 +14,29 @@ import org.springframework.web.client.RestClient;
 
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.List;
 
 @Log4j2
-public class SpellerRequestSender {
+public class SpellerInvoker {
 
-    public List<List<SpellerResponse>> sendRequest(CheckTextsRequest checkTextsRequest, Task task) {
+    public List<List<SpellerResponse>> composeResponseFromSpeller(List<List<SpellerResponse>> spellerResponse) {
+        List<List<SpellerResponse>> spellerResponses = new ArrayList<>();
+        if (spellerResponse != null) {
+            spellerResponses.add(
+                    spellerResponse.stream()
+                            .filter(response -> !response.isEmpty())
+                            .map(List::removeFirst)
+                            .toList()
+            );
+        } else {
+            log.warn("Response for task, was not created because no response body was available");
+            return null;
+        }
+        return spellerResponses;
+    }
+
+    public List<List<SpellerResponse>> sendRequestToSpeller(CheckTextsRequest checkTextsRequest, Task task) {
         log.info("Sending a request {}, with lang {} and options {}", checkTextsRequest.text(), checkTextsRequest.lang(), checkTextsRequest.option());
         RestClient restClient = RestClient.builder().baseUrl("https://speller.yandex.net/services/spellservice.json/checkTexts").build();
         MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
@@ -28,7 +45,7 @@ public class SpellerRequestSender {
         }
         params.add("lang", checkTextsRequest.lang());
         params.add("options", Integer.toString(checkTextsRequest.option()));
-        var response = restClient.post()
+        RestClient.ResponseSpec response = restClient.post()
                 .contentType(MediaType.APPLICATION_FORM_URLENCODED)
                 .accept(MediaType.APPLICATION_JSON)
                 .body(params)

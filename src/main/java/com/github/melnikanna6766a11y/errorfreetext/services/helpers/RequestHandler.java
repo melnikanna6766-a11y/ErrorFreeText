@@ -20,7 +20,7 @@ public class RequestHandler {
         int maxIndex = task.getLastProcessedWordIndex() + calculateAvailableRange(
                 Arrays.copyOfRange(splitedText, task.getLastProcessedWordIndex(), splitedText.length),
                 limitsHandler.getRequestLimit(),
-                limitsHandler.calculateNumberOfRemainingCharacters()
+                limitsHandler.calculateRemainingChars()
         );
         String[] requestArray = Arrays.copyOfRange(splitedText, task.getLastProcessedWordIndex(), maxIndex);
         task.setLastProcessedWordIndex(maxIndex + 1);
@@ -35,10 +35,10 @@ public class RequestHandler {
         );
     }
 
-    private int calculateAvailableRange(String[] sptitedText, int requestLimit, long remainingChars) {
+    private int calculateAvailableRange(String[] splitedText, int requestLimit, long remainingChars) {
         int charCount = 0;
         int maxIndex = 0;
-        for (String word: sptitedText) {
+        for (String word: splitedText) {
             if (charCount + word.length() <= requestLimit && charCount + word.length() <= remainingChars) {
                 charCount += word.length();
                 maxIndex += 1;
