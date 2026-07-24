@@ -1,5 +1,6 @@
 package com.github.melnikanna6766a11y.errorfreetext.entity;
 
+import com.github.melnikanna6766a11y.errorfreetext.dto.ErrorResponse;
 import com.github.melnikanna6766a11y.errorfreetext.dto.SpellerResponse;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -52,6 +53,10 @@ public class Task {
 
     @Column(name = "last_processed_word_index")
     private Integer lastProcessedWordIndex;
+
+    @JdbcTypeCode(SqlTypes.JSON)
+    @Column(columnDefinition = "json")
+    private ErrorResponse error;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "status")

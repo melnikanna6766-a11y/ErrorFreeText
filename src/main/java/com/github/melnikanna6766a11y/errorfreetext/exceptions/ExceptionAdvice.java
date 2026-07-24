@@ -1,7 +1,6 @@
 package com.github.melnikanna6766a11y.errorfreetext.exceptions;
 
 import com.github.melnikanna6766a11y.errorfreetext.dto.ErrorResponse;
-import com.github.melnikanna6766a11y.errorfreetext.dto.SpellerResponse;
 import com.github.melnikanna6766a11y.errorfreetext.entity.Status;
 import com.github.melnikanna6766a11y.errorfreetext.services.TaskService;
 import lombok.AllArgsConstructor;
@@ -15,8 +14,6 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
 
 @ControllerAdvice
 @Log4j2
@@ -75,11 +72,11 @@ public class ExceptionAdvice {
     @ExceptionHandler(SpellerServerErrorException.class)
     public void handleException(SpellerServerErrorException exception) {
         log.error(exception.getMessage());
-        new ErrorResponse(
+        exception.getTask().setError(new ErrorResponse(
                 exception.getMessage(),
                 HttpStatus.INTERNAL_SERVER_ERROR,
                 LocalDateTime.now(),
-                ServletUriComponentsBuilder.fromCurrentRequest().build().getPath());
+                ServletUriComponentsBuilder.fromCurrentRequest().build().getPath()));
         taskService.saveStatusFor(Status.error, exception.getTask());
     }
 
