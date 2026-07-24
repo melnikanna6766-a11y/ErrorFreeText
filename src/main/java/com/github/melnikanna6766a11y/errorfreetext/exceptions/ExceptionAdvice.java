@@ -51,7 +51,13 @@ public class ExceptionAdvice {
     @ExceptionHandler(CounterOverflowException.class)
     public ResponseEntity<ErrorResponse> handleException(CounterOverflowException exception) {
         log.error(exception.getMessage());
-        exception.getUncompletedTasks().forEach(task -> taskService.saveStatusFor(Status.created, task));
+        taskService.findUncompletedTasks().forEach(task -> {
+            if (task.getSpellerResponses() != null) {
+                taskService.saveStatusFor(Status.incompleted, task);
+            } else {
+                taskService.saveStatusFor(Status.created, task);
+            }
+        });
         return new ResponseEntity<>(
                 new ErrorResponse(
                         exception.getMessage(),

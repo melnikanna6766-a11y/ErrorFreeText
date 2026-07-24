@@ -13,6 +13,7 @@ import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -46,5 +47,9 @@ public class TaskService {
     public UUID saveStatusFor(Status status, Task task) {
         task.setStatus(status);
         return taskRepository.save(task).getId();
+    }
+
+    public List<Task> findUncompletedTasks() {
+        return taskRepository.findUncompletedTasks();
     }
 }

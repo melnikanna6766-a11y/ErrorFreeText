@@ -18,11 +18,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantLock;
 
 @Service
 @Log4j2
@@ -32,8 +29,6 @@ public class TaskScheduler {
     private final LimitsHandler limitsHandler;
     private final RequestHandler requestHandler;
 
-    private Lock lock = new ReentrantLock();
-
     @Scheduled(fixedRateString = "${fixed.rate}")
     @Async
     public void handleTask() {
@@ -42,13 +37,9 @@ public class TaskScheduler {
         saveStatus(tasks);
         log.info("Starting handle {} tasks ", tasks.size());
         for (Task task : tasks) {
-            lock.lock();
-            try {
-            List<List<SpellerResponse>> spellerResponse = performSpellerRequest(task);
-            saveResponseToTask(task, spellerResponse);
-            limitsHandler.updateCounter(task);
-            } finally {
-                lock.unlock();
+            if(limitsHandler.areCountersBelowTheLimits()) {
+                List<List<SpellerResponse>> spellerResponse = performSpellerRequest(task);
+                saveResponseToTask(task, spellerResponse);
             }
         }
         log.info("Finishing handle {} tasks from current scheduler call", tasks.size());
@@ -63,11 +54,11 @@ public class TaskScheduler {
         log.info("Creating and send request to speller for task with id {}", task.getId());
         TaskWrapper taskWrapper = new TaskWrapper(task);
         List<List<SpellerResponse>> spellerResponse = new ArrayList<>();
-        int writtenChars = 0;
-        while (taskWrapper.lessThanRequestLengthWasWritten() && writtenChars < limitsHandler.calculateRemainingChars()) {
+        while (taskWrapper.lessThanRequestLengthWasWritten() && limitsHandler.calculateRemainingChars() > 0) {
             CheckTextsRequest request = requestHandler.generateSpellerRequest(task);
+            limitsHandler.updateCounter(request);
             spellerResponse.addAll(Objects.requireNonNull(sendRequestToSpeller(request, task)));
-            writtenChars += Arrays.stream(request.text()).mapToInt(String::length).sum();
+            task.setSpellerResponses(spellerResponse);
         }
         task.setLastProcessedWordIndex(task.getLastProcessedWordIndex() - 1);
         if (task.getSpellerResponses() != null) {

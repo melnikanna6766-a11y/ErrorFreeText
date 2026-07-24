@@ -18,4 +18,9 @@ public interface TaskRepository extends JpaRepository<Task, UUID> {
     @EntityGraph(value = "task-entity-graph")
     @Query("select t from Task t where (t.status = 'completed' or t.status = 'incompleted') and t.completionDate = :date")
     public List<Task> findHandledDayTasks(LocalDate date);
+
+    @EntityGraph(value = "task-entity-graph")
+    @Query("select t from Task t where t.status = 'inProgress'")
+    public List<Task> findUncompletedTasks();
+
 }

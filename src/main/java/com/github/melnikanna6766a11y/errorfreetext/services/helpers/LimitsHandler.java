@@ -1,5 +1,6 @@
 package com.github.melnikanna6766a11y.errorfreetext.services.helpers;
 
+import com.github.melnikanna6766a11y.errorfreetext.dto.CheckTextsRequest;
 import com.github.melnikanna6766a11y.errorfreetext.entity.Task;
 import com.github.melnikanna6766a11y.errorfreetext.exceptions.CounterOverflowException;
 import com.github.melnikanna6766a11y.errorfreetext.repositories.TaskRepository;
@@ -26,11 +27,6 @@ public class LimitsHandler {
     private AtomicLong dayExecutionsCounter = new AtomicLong();
     private LocalDate dateOfLastAccess = LocalDate.now();
 
-    // у нас 3 варианта:
-    // - приложение не запускалось тогда: счетчики 0, дата - сегодня
-    // - приложение запускалось не сегодня: счетчики 0, дата - сегодня
-    // - приложение запускалось сегодня: дата - сегодня и нужны цифры для счетчиков ....
-
     public LimitsHandler(TaskRepository taskRepository) {
         this.taskRepository = taskRepository;
     }
@@ -51,7 +47,7 @@ public class LimitsHandler {
         }
     }
     
-    public void updateCounter(Task task) {
+    public void updateCounter(CheckTextsRequest request) {
         if (areCountersBelowTheLimits()) {
             throw new CounterOverflowException("The number of requests per day or the number of characters has exceeded the limit");
         }
@@ -59,8 +55,8 @@ public class LimitsHandler {
             dayCharsCounter.set(0);
             dayExecutionsCounter.set(0);
         }
-        dayCharsCounter.addAndGet(new TaskWrapper(task).getNumberOfCharacters());
-        dayExecutionsCounter.addAndGet(task.getSpellerResponses().size());
+        dayCharsCounter.addAndGet(request.charsNumber());
+        dayExecutionsCounter.addAndGet(1);
         dateOfLastAccess = LocalDate.now();
     }
 

@@ -17,21 +17,26 @@ public class RequestHandler {
     public CheckTextsRequest generateSpellerRequest(Task task) {
         log.info("Creating check text request for task with id {}", task.getId());
         String[] splitedText = task.getInputText().split("[,.\\s]+");
-        int maxIndex = task.getLastProcessedWordIndex() + calculateAvailableRange(
+        int maxIndex = calculateAvailableRange(
                 Arrays.copyOfRange(splitedText, task.getLastProcessedWordIndex(), splitedText.length),
                 limitsHandler.getRequestLimit(),
                 limitsHandler.calculateRemainingChars()
         );
-        String[] requestArray = Arrays.copyOfRange(splitedText, task.getLastProcessedWordIndex(), maxIndex);
+        String[] requestArray = Arrays.copyOfRange(
+                splitedText,
+                task.getLastProcessedWordIndex(),
+                maxIndex + task.getLastProcessedWordIndex()
+        );
         task.setLastProcessedWordIndex(maxIndex + 1);
-        return createCheckTextRequest(task, requestArray);
+        return createCheckTextRequest(task, requestArray, maxIndex);
     }
 
-    private CheckTextsRequest createCheckTextRequest(Task task, String[] textRequest){
+    private CheckTextsRequest createCheckTextRequest(Task task, String[] textRequest, int charsNumber){
         return new CheckTextsRequest(
                 textRequest,
                 task.getLanguage().getLanguage(),
-                new OptionsHandler().checkOptions(textRequest)
+                new OptionsHandler().checkOptions(textRequest),
+                charsNumber
         );
     }
 
