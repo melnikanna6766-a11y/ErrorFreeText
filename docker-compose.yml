@@ -3,13 +3,13 @@ services:
     build:
       context: .
     ports:
-      - 9090:9090
+      - 9090:8080
     depends_on:
       db:
         condition: service_healthy
     environment:
-      - SERVER_PORT=9090
-      - SPRING_DATASOURCE_URL=jdbc:postgresql://db:5432/errorfreetext
+      - SERVER_PORT=8080
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://db:5432/errorfreetext?currentSchema=public
       - SPRING_DATASOURCE_USERNAME=errorfreetext
       - SPRING_DATASOURCE_PASSWORD=errorfreetext
       - SPRING_JPA_HIBERNATE_DDL_AUTO=validate
@@ -17,7 +17,7 @@ services:
     image: postgres:18
     restart: always
     volumes:
-      - db-data:/var/lib/postgresql
+      - db-data:/var/lib/postgresql/data
     environment:
       - POSTGRES_DB=errorfreetext
       - POSTGRES_USER=errorfreetext
@@ -25,7 +25,7 @@ services:
     ports:
       - 5432:5432
     healthcheck:
-      test: ["CMD", "pg_isready", "-U", "errorfreetext"]
+      test: ["CMD-SHELL", "pg_isready -U errorfreetext -d errorfreetext"]
       interval: 10s
       timeout: 5s
       retries: 5
