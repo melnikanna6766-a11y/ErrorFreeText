@@ -50,10 +50,8 @@ public class SpellerInvoker {
                 .accept(MediaType.APPLICATION_JSON)
                 .body(params)
                 .retrieve();
-        log.info(response.toString());
         try {
-            return response.body(new ParameterizedTypeReference<List<List<SpellerResponse>>>() {
-            });
+            return response.body(new ParameterizedTypeReference<>() {});
         } catch (HttpServerErrorException e) {
             throw new SpellerServerErrorException("503 yandex speller service unavailable", task);
         }

@@ -32,17 +32,19 @@ public class TaskScheduler {
     @Scheduled(fixedRateString = "${fixed.rate}")
     @Async
     public void handleTask() {
-        List<Task> tasks = taskRepository.findUnhandledTasks();
-        tasks.forEach(task -> task.setStatus(Status.inProgress));
-        saveStatus(tasks);
-        log.info("Starting handle {} tasks ", tasks.size());
-        for (Task task : tasks) {
-            if(limitsHandler.areCountersBelowTheLimits()) {
-                List<List<SpellerResponse>> spellerResponse = performSpellerRequest(task);
-                saveResponseToTask(task, spellerResponse);
+        if(limitsHandler.areCountersBelowTheLimits()) {
+            List<Task> tasks = taskRepository.findUnhandledTasks();
+            tasks.forEach(task -> task.setStatus(Status.inProgress));
+            saveStatus(tasks);
+            log.info("Starting handle {} tasks ", tasks.size());
+            for (Task task : tasks) {
+                if (limitsHandler.areCountersBelowTheLimits()) {
+                    Task performedTask = performSpellerRequest(task);
+                    saveFinishedTask(performedTask);
+                }
             }
+            log.info("Finishing handle {} tasks from current scheduler call", tasks.size());
         }
-        log.info("Finishing handle {} tasks from current scheduler call", tasks.size());
     }
 
     @Transactional
@@ -50,26 +52,31 @@ public class TaskScheduler {
         taskRepository.saveAll(task);
     }
 
-    private List<List<SpellerResponse>> performSpellerRequest(Task task) {
+    private Task performSpellerRequest(Task task) {
         log.info("Creating and send request to speller for task with id {}", task.getId());
         TaskWrapper taskWrapper = new TaskWrapper(task);
         List<List<SpellerResponse>> spellerResponse = new ArrayList<>();
+        if (task.getSpellerResponses() != null) {
+            spellerResponse.addAll(task.getSpellerResponses());
+        }
         while (taskWrapper.lessThanRequestLengthWasWritten() && limitsHandler.calculateRemainingChars() > 0) {
             CheckTextsRequest request = requestHandler.generateSpellerRequest(task);
             limitsHandler.updateCounter(request);
             spellerResponse.addAll(Objects.requireNonNull(sendRequestToSpeller(request, task)));
             task.setSpellerResponses(spellerResponse);
         }
-        task.setLastProcessedWordIndex(task.getLastProcessedWordIndex() - 1);
-        if (task.getSpellerResponses() != null) {
-            spellerResponse.addAll(task.getSpellerResponses());
-        }
         log.info("Created speller response for task with id {}, count of requests {}", task.getId(), spellerResponse.size());
-        return spellerResponse;
+        return task;
+    }
+
+    private List<List<SpellerResponse>> sendRequestToSpeller(CheckTextsRequest request, Task task) {
+        SpellerInvoker spellerInvoker = new SpellerInvoker();
+        List<List<SpellerResponse>> spellerResponse = spellerInvoker.sendRequestToSpeller(request, task);
+        return spellerInvoker.composeResponseFromSpeller(spellerResponse);
     }
 
     @Transactional
-    public void saveResponseToTask(Task task, List<List<SpellerResponse>> spellerResponse) {
+    public void saveFinishedTask(Task task) {
         TaskWrapper taskWrapper = new TaskWrapper(task);
         log.info("Starting set fields and saving task with id {}", task.getId());
         if (taskWrapper.lessThanRequestLengthWasWritten()) {
@@ -77,16 +84,8 @@ public class TaskScheduler {
         } else {
             task.setStatus(Status.completed);
         }
-        task.setSpellerResponses(spellerResponse);
         task.setCompletionDate(LocalDate.now());
         taskRepository.save(task);
         log.info("Finishing saving task with id {} with status {}", task.getId(), task.getStatus());
-    }
-
-
-    private List<List<SpellerResponse>> sendRequestToSpeller(CheckTextsRequest request, Task task) {
-        SpellerInvoker spellerInvoker = new SpellerInvoker();
-        List<List<SpellerResponse>> spellerResponse = spellerInvoker.sendRequestToSpeller(request, task);
-        return spellerInvoker.composeResponseFromSpeller(spellerResponse);
     }
 }

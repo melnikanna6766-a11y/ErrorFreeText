@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @ControllerAdvice
@@ -21,7 +22,7 @@ import java.time.LocalDateTime;
 public class ExceptionAdvice {
     private TaskService taskService;
 
-    @ExceptionHandler({NoSuchIdException.class})
+    @ExceptionHandler(NoSuchIdException.class)
     public ResponseEntity<ErrorResponse> handleException(NoSuchIdException exception) {
         log.error(exception.getMessage());
         return new ResponseEntity<>(
@@ -46,22 +47,16 @@ public class ExceptionAdvice {
     }
 
     @ExceptionHandler(CounterOverflowException.class)
-    public ResponseEntity<ErrorResponse> handleException(CounterOverflowException exception) {
+    public void handleException(CounterOverflowException exception) {
         log.error(exception.getMessage());
         taskService.findUncompletedTasks().forEach(task -> {
             if (task.getSpellerResponses() != null) {
+                task.setCompletionDate(LocalDate.now());
                 taskService.saveStatusFor(Status.incompleted, task);
             } else {
                 taskService.saveStatusFor(Status.created, task);
             }
         });
-        return new ResponseEntity<>(
-                new ErrorResponse(
-                        exception.getMessage(),
-                        HttpStatus.INTERNAL_SERVER_ERROR,
-                        LocalDateTime.now(),
-                        ServletUriComponentsBuilder.fromCurrentRequest().build().getPath()),
-                HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
     @ExceptionHandler(ClientAbortException.class)
@@ -77,6 +72,7 @@ public class ExceptionAdvice {
                 HttpStatus.INTERNAL_SERVER_ERROR,
                 LocalDateTime.now(),
                 ServletUriComponentsBuilder.fromCurrentRequest().build().getPath()));
+        exception.getTask().setCompletionDate(LocalDate.now());
         taskService.saveStatusFor(Status.error, exception.getTask());
     }
 

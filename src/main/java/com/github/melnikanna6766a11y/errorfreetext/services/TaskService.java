@@ -30,7 +30,7 @@ public class TaskService {
         currentTask.setInputText(task.text());
         currentTask.setLastProcessedWordIndex(0);
         currentTask.setStatus(Status.created);
-        currentTask.setLanguage(languageRepository.findByLanguage(task.lang()).orElseThrow(() -> new NoSuchIdException(Language.class, task.lang())));
+        currentTask.setLanguage(languageRepository.findByLanguage(task.lang()).orElseThrow(() -> new NoSuchIdException(Language.class.getSimpleName() + " with id: " + task.lang() + " not found")));
         log.debug("saving the task: lang = {}, status = {}",
                 currentTask.getLanguage(),
                 currentTask.getStatus()
@@ -40,7 +40,7 @@ public class TaskService {
 
     public TaskResponse findTaskById(UUID id) {
         log.info("Find task by id {}", id);
-        Task task = taskRepository.findById(id).orElseThrow(() -> new NoSuchIdException(Task.class, id));
+        Task task = taskRepository.findById(id).orElseThrow(() -> new NoSuchIdException(Task.class + " with id: " +  id + " not found"));
         return new TaskResponse(task.getSpellerResponses(), task.getStatus(), null);
     }
 

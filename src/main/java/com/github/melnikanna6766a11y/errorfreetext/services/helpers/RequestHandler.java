@@ -16,31 +16,46 @@ public class RequestHandler {
 
     public CheckTextsRequest generateSpellerRequest(Task task) {
         log.info("Creating check text request for task with id {}", task.getId());
-        String[] splitedText = task.getInputText().split("[,.\\s]+");
-        int maxIndex = calculateAvailableRange(
-                Arrays.copyOfRange(splitedText, task.getLastProcessedWordIndex(), splitedText.length),
+        String[] splitedText = task.getInputText().split("[,\\s]+");
+        int firstIndex = task.getLastProcessedWordIndex();
+        if (task.getLastProcessedWordIndex() > 0) {
+            firstIndex += 1;
+        }
+        int availableRange = calculateAvailableRange(
+                Arrays.copyOfRange(splitedText, firstIndex, splitedText.length),
                 limitsHandler.getRequestLimit(),
                 limitsHandler.calculateRemainingChars()
         );
         String[] requestArray = Arrays.copyOfRange(
                 splitedText,
-                task.getLastProcessedWordIndex(),
-                maxIndex + task.getLastProcessedWordIndex()
+                firstIndex,
+                availableRange + firstIndex
         );
-        task.setLastProcessedWordIndex(maxIndex + 1);
-        return createCheckTextRequest(task, requestArray, maxIndex);
+        task.setLastProcessedWordIndex(availableRange);
+        return createCheckTextRequest(task, requestArray, Arrays.stream(requestArray).mapToInt(String::length).sum());
     }
 
     private CheckTextsRequest createCheckTextRequest(Task task, String[] textRequest, int charsNumber){
         return new CheckTextsRequest(
                 textRequest,
                 task.getLanguage().getLanguage(),
-                new OptionsHandler().checkOptions(textRequest),
+                checkOptions(textRequest),
                 charsNumber
         );
     }
 
-    private int calculateAvailableRange(String[] splitedText, int requestLimit, long remainingChars) {
+    private int checkOptions(String[] text) {
+        int options = 0;
+        if (Arrays.stream(text).anyMatch(word -> word.matches(".*\\d.*"))) {
+            options+=2;
+        }
+        if (Arrays.stream(text).anyMatch(word -> word.matches("^(https?://).*"))) {
+            options+=4;
+        }
+        return options;
+    }
+
+    private int calculateAvailableRange(String[] splitedText, long requestLimit, long remainingChars) {
         int charCount = 0;
         int maxIndex = 0;
         for (String word: splitedText) {

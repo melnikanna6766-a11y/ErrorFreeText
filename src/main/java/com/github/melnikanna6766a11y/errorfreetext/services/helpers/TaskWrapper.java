@@ -13,10 +13,10 @@ public class TaskWrapper {
 
     public TaskWrapper(Task task) {
         this.task = task;
-        this.numberOfCharacters = Arrays.stream(task.getInputText().split("[,.\\s]+"))
+        this.numberOfCharacters = Arrays.stream(task.getInputText().split("[,\\s]+"))
                 .mapToLong(String::length)
                 .sum();
-        this.arrayLength = task.getInputText().split("[,.\\s]+").length;
+        this.arrayLength = task.getInputText().split("[,\\s]+").length;
     }
 
     public boolean lessThanRequestLengthWasWritten() {
