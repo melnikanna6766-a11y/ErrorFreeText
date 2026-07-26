@@ -4,7 +4,7 @@ git clone https://github.com/melnikanna6766-a11y/ErrorFreeText.git
 ```
 To start docker compose, you can simply run the command: 
 ```
-docker compose up --build
+docker compose up 
 ```
 You can also pass variable values; otherwise, default values ​​will be assigned.
 
