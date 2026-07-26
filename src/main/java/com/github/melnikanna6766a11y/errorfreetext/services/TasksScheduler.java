@@ -24,7 +24,7 @@ import java.util.Objects;
 @Service
 @Log4j2
 @RequiredArgsConstructor
-public class TaskScheduler {
+public class TasksScheduler {
     private final TaskRepository taskRepository;
     private final LimitsHandler limitsHandler;
     private final RequestHandler requestHandler;
