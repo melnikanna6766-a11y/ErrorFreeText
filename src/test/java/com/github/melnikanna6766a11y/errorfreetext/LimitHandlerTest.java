@@ -2,10 +2,8 @@ package com.github.melnikanna6766a11y.errorfreetext;
 
 import com.github.melnikanna6766a11y.errorfreetext.dto.CheckTextsRequest;
 import com.github.melnikanna6766a11y.errorfreetext.dto.SpellerResponse;
-import com.github.melnikanna6766a11y.errorfreetext.entity.Language;
 import com.github.melnikanna6766a11y.errorfreetext.entity.Status;
 import com.github.melnikanna6766a11y.errorfreetext.entity.Task;
-import com.github.melnikanna6766a11y.errorfreetext.exceptions.CounterOverflowException;
 import com.github.melnikanna6766a11y.errorfreetext.repositories.LanguageRepository;
 import com.github.melnikanna6766a11y.errorfreetext.repositories.TaskRepository;
 import com.github.melnikanna6766a11y.errorfreetext.services.helpers.LimitsHandler;
@@ -14,9 +12,6 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -28,7 +23,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @Slf4j
 @SpringBootTest
