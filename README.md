@@ -31,7 +31,7 @@ returns the identifier of the saved task, which is required to retrieve the resp
 
 EXAMPLE:
 ```
-curl http://localhost:8080/tasks/{id}
+curl http://localhost:8080/tasks/96f6fc23-af1c-4aea-aa47-2df7a8176c4c
 ```
 returns a response containing the task, status, and an error if one occurred.
 
