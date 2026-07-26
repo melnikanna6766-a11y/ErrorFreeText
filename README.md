@@ -20,16 +20,18 @@ Variables:
 The application has two endpoints:
 
 **POST (/tasks)**
+
+EXAMPLE:
 ```
-curl -X POST http://localhost:9090/tasks \
-     -H "Content-Type: application/json" \
-     -d '{"text": "тесст", "lang": "ru"}'
+curl -X POST http://localhost:8080/tasks -H "Content-Type: application/json" -d '{"text": "тесст", "lang": "ru"}'
 ```
 returns the identifier of the saved task, which is required to retrieve the response from the get method.
 
 **GET (tasks/{id})**
+
+EXAMPLE:
 ```
-curl http://localhost:9090/tasks/{id}
+curl http://localhost:8080/tasks/{id}
 ```
 returns a response containing the task, status, and an error if one occurred.
 
