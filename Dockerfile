@@ -1,11 +1,11 @@
-FROM gradle:8-jdk25-alpine AS builder
+FROM gradle:jdk-25-and-25-alpine AS builder
 WORKDIR /app
 COPY build.gradle settings.gradle ./
 COPY gradle/ ./gradle/
 COPY gradlew ./
 COPY src ./src
 
-RUN ./gradlew bootJar --no-daemon -x test
+RUN ./gradlew bootJar --no-daemon
 
 FROM eclipse-temurin:25-jre-alpine
 WORKDIR /app
