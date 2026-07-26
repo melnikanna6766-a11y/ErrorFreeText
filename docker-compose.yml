@@ -3,21 +3,25 @@ services:
     build:
       context: .
     ports:
-      - 9090:8080
+      - ${SERVER_PORT:-8080}:8080
     depends_on:
       db:
         condition: service_healthy
     environment:
-      - SERVER_PORT=8080
+      - SERVER_PORT=${SERVER_PORT:-8080}
       - SPRING_DATASOURCE_URL=jdbc:postgresql://db:5432/errorfreetext?currentSchema=public
-      - SPRING_DATASOURCE_USERNAME=${DB_USER}
-      - SPRING_DATASOURCE_PASSWORD=${DB_PASSWORD}
+      - SPRING_DATASOURCE_USERNAME=${DB_USER:-errorfreetext}
+      - SPRING_DATASOURCE_PASSWORD=${DB_PASSWORD:-errorfreetext}
       - SPRING_JPA_HIBERNATE_DDL_AUTO=validate
+      - FIXED_RATE=${FIXED_RATE:-60000}
+      - CHARS_LIMIT=${CHARS_LIMIT-10000000}
+      - EXECUTION_LIMIT=${EXECUTION_LIMIT:-10000}
+      - REQUEST_LIMIT=${REQUEST_LIMIT:-10000}
   db:
     image: postgres:18
     restart: always
     volumes:
-      - db-data:/var/lib/postgresql/data
+      - db-data:/var/lib/postgresql
     environment:
       - POSTGRES_DB=errorfreetext
       - POSTGRES_USER=${DB_USER:-errorfreetext}
