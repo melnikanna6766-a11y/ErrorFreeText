@@ -43,3 +43,5 @@ for stopping and removing containers
 ```
 docker compose down
 ```
+
+Spring Boot 4 was used in the `master` branch, while Spring Boot 3 is used in the `spring-boot-3` branch.
