@@ -3,6 +3,7 @@ package com.github.melnikanna6766a11y.errorfreetext;
 import com.github.melnikanna6766a11y.errorfreetext.dto.CheckTextsRequest;
 import com.github.melnikanna6766a11y.errorfreetext.entity.Status;
 import com.github.melnikanna6766a11y.errorfreetext.entity.Task;
+import com.github.melnikanna6766a11y.errorfreetext.exceptions.ServerExceptionHandler;
 import com.github.melnikanna6766a11y.errorfreetext.repositories.LanguageRepository;
 import com.github.melnikanna6766a11y.errorfreetext.repositories.TaskRepository;
 import com.github.melnikanna6766a11y.errorfreetext.services.TaskScheduler;
@@ -40,6 +41,9 @@ public class TaskSchedulerTest {
     @MockitoBean
     private LimitsHandler limitsHandler;
 
+    @MockitoBean
+    private ServerExceptionHandler serverExceptionHandler;
+
     private final Task task = new Task();
 
     @BeforeEach
@@ -53,7 +57,7 @@ public class TaskSchedulerTest {
 
     @Test
     public void handleTaskTest() {
-        TaskScheduler taskScheduler = new TaskScheduler(taskRepository, limitsHandler, requestHandler);
+        TaskScheduler taskScheduler = new TaskScheduler(taskRepository, limitsHandler, requestHandler, serverExceptionHandler);
         Mockito.when(limitsHandler.areCountersBelowTheLimits()).thenReturn(true);
         Mockito.when(limitsHandler.calculateRemainingChars()).thenReturn(1000L);
         CheckTextsRequest checkTextsRequest = new CheckTextsRequest(new String[]{"карова"}, "ru", 0, 6);

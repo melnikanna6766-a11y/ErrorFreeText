@@ -3,12 +3,14 @@ package com.github.melnikanna6766a11y.errorfreetext;
 import com.github.melnikanna6766a11y.errorfreetext.dto.CheckTextsRequest;
 import com.github.melnikanna6766a11y.errorfreetext.dto.SpellerResponse;
 import com.github.melnikanna6766a11y.errorfreetext.entity.Task;
+import com.github.melnikanna6766a11y.errorfreetext.exceptions.ServerExceptionHandler;
 import com.github.melnikanna6766a11y.errorfreetext.services.helpers.SpellerInvoker;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -20,11 +22,14 @@ public class SpellerInvokerTest {
     @Mock
     Task task;
 
+    @MockitoBean
+    ServerExceptionHandler serverExceptionHandler;
+
     @Test
     public void sendRequestToSpeller() {
         SpellerInvoker spellerInvoker = new SpellerInvoker();
         CheckTextsRequest checkTextsRequest = new CheckTextsRequest(new String[]{"карова", "мло", "мяумяу"}, "ru", 0, 15);
-        List<List<SpellerResponse>> correctedTextResponse = spellerInvoker.sendRequestToSpeller(checkTextsRequest, task);
+        List<List<SpellerResponse>> correctedTextResponse = spellerInvoker.sendRequestToSpeller(checkTextsRequest, task, serverExceptionHandler);
         assertEquals("карова" ,correctedTextResponse.getFirst().getFirst().word());
         assertEquals(3, correctedTextResponse.size());
         assertEquals(1, correctedTextResponse.getFirst().size());

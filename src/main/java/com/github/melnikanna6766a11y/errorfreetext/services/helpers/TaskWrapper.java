@@ -22,4 +22,8 @@ public class TaskWrapper {
     public boolean lessThanRequestLengthWasWritten() {
         return task.getLastProcessedWordIndex() < arrayLength;
     }
+
+    public boolean haveError() {
+        return task.getError() != null;
+    }
 }

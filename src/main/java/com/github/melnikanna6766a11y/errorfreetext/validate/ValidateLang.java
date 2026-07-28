@@ -1,6 +1,5 @@
 package com.github.melnikanna6766a11y.errorfreetext.validate;
 
-import com.github.melnikanna6766a11y.errorfreetext.entity.Language;
 import jakarta.validation.Constraint;
 import jakarta.validation.Payload;
 

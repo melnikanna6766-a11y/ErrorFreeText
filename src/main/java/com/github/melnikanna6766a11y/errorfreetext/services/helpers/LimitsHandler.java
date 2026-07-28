@@ -51,9 +51,9 @@ public class LimitsHandler {
         log.info("Counter initialization has completed, dayCharsCounter = {}, dayExecutionsCounter = {}", dayCharsCounter, dayExecutionsCounter);
     }
     
-    public void updateCounter(CheckTextsRequest request) {
+    public boolean updateCounter(CheckTextsRequest request) {
         if (!areCountersBelowTheLimits()) {
-            throw new CounterOverflowException("The number of requests per day or the number of characters has exceeded the limit");
+            return false;
         }
         if (!dateOfLastAccess.equals(LocalDate.now())) {
             dayCharsCounter.set(0);
@@ -62,6 +62,7 @@ public class LimitsHandler {
         dayCharsCounter.addAndGet(request.charsNumber());
         dayExecutionsCounter.addAndGet(1);
         dateOfLastAccess = LocalDate.now();
+        return true;
     }
 
     public boolean areCountersBelowTheLimits() {

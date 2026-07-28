@@ -3,6 +3,8 @@ package com.github.melnikanna6766a11y.errorfreetext.services;
 import com.github.melnikanna6766a11y.errorfreetext.dto.CheckTextsRequest;
 import com.github.melnikanna6766a11y.errorfreetext.dto.SpellerResponse;
 import com.github.melnikanna6766a11y.errorfreetext.entity.Status;
+import com.github.melnikanna6766a11y.errorfreetext.exceptions.CounterOverflowException;
+import com.github.melnikanna6766a11y.errorfreetext.exceptions.ServerExceptionHandler;
 import com.github.melnikanna6766a11y.errorfreetext.services.helpers.LimitsHandler;
 import com.github.melnikanna6766a11y.errorfreetext.services.helpers.SpellerInvoker;
 import com.github.melnikanna6766a11y.errorfreetext.services.helpers.RequestHandler;
@@ -28,6 +30,7 @@ public class TaskScheduler {
     private final TaskRepository taskRepository;
     private final LimitsHandler limitsHandler;
     private final RequestHandler requestHandler;
+    private final ServerExceptionHandler serverExceptionHandler;
 
     @Scheduled(fixedRateString = "${fixed.rate}")
     @Async
@@ -61,9 +64,15 @@ public class TaskScheduler {
         }
         while (taskWrapper.lessThanRequestLengthWasWritten() && limitsHandler.calculateRemainingChars() > 0) {
             CheckTextsRequest request = requestHandler.generateSpellerRequest(task);
-            limitsHandler.updateCounter(request);
-            spellerResponse.addAll(Objects.requireNonNull(sendRequestToSpeller(request, task)));
-            task.setSpellerResponses(spellerResponse);
+            if (!taskWrapper.haveError()) {
+                if (limitsHandler.updateCounter(request)) {
+                    spellerResponse.addAll(Objects.requireNonNull(sendRequestToSpeller(request, task)));
+                    task.setSpellerResponses(spellerResponse);
+                } else {
+                    serverExceptionHandler.handleCounterOverflowException();
+                    throw new CounterOverflowException("The number of requests per day or the number of characters has exceeded the limit");
+                }
+            }
         }
         log.info("Created speller response for task with id {}, count of requests {}", task.getId(), spellerResponse.size());
         return task;
@@ -71,7 +80,7 @@ public class TaskScheduler {
 
     private List<List<SpellerResponse>> sendRequestToSpeller(CheckTextsRequest request, Task task) {
         SpellerInvoker spellerInvoker = new SpellerInvoker();
-        List<List<SpellerResponse>> spellerResponse = spellerInvoker.sendRequestToSpeller(request, task);
+        List<List<SpellerResponse>> spellerResponse = spellerInvoker.sendRequestToSpeller(request, task, serverExceptionHandler);
         return spellerInvoker.composeResponseFromSpeller(spellerResponse);
     }
 
